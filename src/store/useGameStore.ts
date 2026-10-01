@@ -19,6 +19,7 @@ interface RawQuestion {
   correct_index: number;
   difficulty: "easy" | "medium" | "hard";
   base_score: number;
+  duration_seconds?: number;
   explanation?: string;
 }
 
@@ -30,6 +31,7 @@ function normalizeQuestions(rawQuestions: RawQuestion[]): Question[] {
     correctIndex: question.correct_index,
     difficulty: question.difficulty,
     baseScore: question.base_score,
+    durationSeconds: question.duration_seconds ?? 20,
     explanation: question.explanation,
   }));
 }

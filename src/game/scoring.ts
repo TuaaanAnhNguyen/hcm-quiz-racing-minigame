@@ -1,3 +1,5 @@
+// src/game/scoring.ts
+
 import type { StageNumber } from "../types/game";
 
 export interface ScoreInput {

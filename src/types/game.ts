@@ -17,6 +17,7 @@ export interface Question {
   correctIndex: number; // 0, 1, 2, or 3 (A, B, C, D)
   difficulty: "easy" | "medium" | "hard";
   baseScore: number;
+  durationSeconds?: number;
   explanation?: string;
 }
 

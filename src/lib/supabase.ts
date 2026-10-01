@@ -19,6 +19,7 @@ export interface QuestionRow {
   correct_index: number;
   difficulty: "easy" | "medium" | "hard";
   base_score: number;
+  duration_seconds: number;
   explanation: string | null;
   created_at: string;
 }
@@ -30,6 +31,7 @@ export function mapRowToQuestion(row: QuestionRow): Question {
     options: [row.options_0, row.options_1, row.options_2, row.options_3],
     correctIndex: row.correct_index,
     difficulty: row.difficulty,
+    durationSeconds: row.duration_seconds,
     baseScore: row.base_score,
     explanation: row.explanation ?? undefined,
   };

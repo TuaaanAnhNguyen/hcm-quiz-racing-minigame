@@ -1,3 +1,5 @@
+// src/game/gameReducer.ts
+
 import type {
   AnswerRecord,
   GameEvent,
@@ -31,23 +33,30 @@ function startQuestion(session: GameSession, now: number): GameSession {
   };
 }
 
-function finishQuestion(session: GameSession, now: number, recordUnanswered = false): GameSession {
+function finishQuestion(
+  session: GameSession,
+  now: number,
+  recordUnanswered = false,
+): GameSession {
   const question = session.questions[session.currentQuestionIndex];
-  const answerHistory = recordUnanswered && question
-    ? [
-        ...session.answerHistory,
-        ...session.players
-          .filter((player) => !player.hasAnswered)
-          .map((player): AnswerRecord => ({
-            playerId: player.id,
-            questionId: question.id,
-            selectedIndex: null,
-            correct: false,
-            scoreEarned: 0,
-            timeLeft: 0,
-          })),
-      ]
-    : session.answerHistory;
+  const answerHistory =
+    recordUnanswered && question
+      ? [
+          ...session.answerHistory,
+          ...session.players
+            .filter((player) => !player.hasAnswered)
+            .map(
+              (player): AnswerRecord => ({
+                playerId: player.id,
+                questionId: question.id,
+                selectedIndex: null,
+                correct: false,
+                scoreEarned: 0,
+                timeLeft: 0,
+              }),
+            ),
+        ]
+      : session.answerHistory;
   const sessionWithHistory = { ...session, answerHistory };
   const nextIndex = session.currentQuestionIndex + 1;
   if (nextIndex >= session.questions.length) {
@@ -61,7 +70,10 @@ function finishQuestion(session: GameSession, now: number, recordUnanswered = fa
     };
   }
 
-  const nextStage = getStageForQuestionIndex(nextIndex, session.questionsPerStage);
+  const nextStage = getStageForQuestionIndex(
+    nextIndex,
+    session.questionsPerStage,
+  );
   if (nextStage !== session.stage) {
     return {
       ...sessionWithHistory,
@@ -75,19 +87,27 @@ function finishQuestion(session: GameSession, now: number, recordUnanswered = fa
     };
   }
 
-  return startQuestion({
-    ...sessionWithHistory,
-    currentQuestionIndex: nextIndex,
-    players: resetPlayers(session.players),
-  }, now);
+  return startQuestion(
+    {
+      ...sessionWithHistory,
+      currentQuestionIndex: nextIndex,
+      players: resetPlayers(session.players),
+    },
+    now,
+  );
 }
 
-function nextStageIndex(session: GameSession): { index: number; stage: StageNumber } | null {
+function nextStageIndex(
+  session: GameSession,
+): { index: number; stage: StageNumber } | null {
   if (session.stage >= 4) return null;
   const stage = (session.stage + 1) as StageNumber;
   return {
     stage,
-    index: stage === 1 ? 0 : stage * session.questionsPerStage - session.questionsPerStage,
+    index:
+      stage === 1
+        ? 0
+        : stage * session.questionsPerStage - session.questionsPerStage,
   };
 }
 
@@ -110,15 +130,24 @@ export function transition(
         ? {
             ...session,
             status: GameState.PLAYING,
-            accumulatedPausedDuration: session.accumulatedPausedDuration + now - session.pausedAt,
+            accumulatedPausedDuration:
+              session.accumulatedPausedDuration + now - session.pausedAt,
             pausedAt: null,
           }
         : session;
     case "SUBMIT_ANSWER": {
       if (session.status !== GameState.PLAYING) return session;
       const question = session.questions[session.currentQuestionIndex];
-      const player = session.players.find((candidate) => candidate.id === event.playerId);
-      if (!question || !player || player.hasAnswered || event.answerIndex < 0 || event.answerIndex >= question.options.length) {
+      const player = session.players.find(
+        (candidate) => candidate.id === event.playerId,
+      );
+      if (
+        !question ||
+        !player ||
+        player.hasAnswered ||
+        event.answerIndex < 0 ||
+        event.answerIndex >= question.options.length
+      ) {
         return session;
       }
 
@@ -129,7 +158,7 @@ export function transition(
         correct,
         baseScore: question.baseScore,
         timeLeft,
-        totalTime: session.totalTime,
+        totalTime: question.durationSeconds ?? session.totalTime,
       });
       const answer: AnswerRecord = {
         playerId: event.playerId,
@@ -145,30 +174,48 @@ export function transition(
               ...candidate,
               hasAnswered: true,
               score: candidate.score + scoreEarned,
-              correctAnswersCount: candidate.correctAnswersCount + (correct ? 1 : 0),
+              correctAnswersCount:
+                candidate.correctAnswersCount + (correct ? 1 : 0),
               lastAnswerCorrect: correct,
             }
           : candidate,
       );
-      const updated = { ...session, players, answerHistory: [...session.answerHistory, answer] };
-      return players.length > 0 && players.every((candidate) => candidate.hasAnswered)
+      const updated = {
+        ...session,
+        players,
+        answerHistory: [...session.answerHistory, answer],
+      };
+      return players.length > 0 &&
+        players.every((candidate) => candidate.hasAnswered)
         ? finishQuestion(updated, now)
         : updated;
     }
     case "TIME_EXPIRED":
-      return session.status === GameState.PLAYING && getTimeLeft(session, now) <= 0
+      return session.status === GameState.PLAYING &&
+        getTimeLeft(session, now) <= 0
         ? finishQuestion(session, now, true)
         : session;
     case "NEXT_QUESTION":
     case "SKIP_QUESTION":
-      return session.status === GameState.PLAYING || session.status === GameState.PAUSED
+      return session.status === GameState.PLAYING ||
+        session.status === GameState.PAUSED
         ? finishQuestion(session, now)
         : session;
     case "FORCE_NEXT_STAGE": {
-      if (session.status !== GameState.PLAYING && session.status !== GameState.PAUSED) return session;
+      if (
+        session.status !== GameState.PLAYING &&
+        session.status !== GameState.PAUSED
+      )
+        return session;
       const next = nextStageIndex(session);
       return next === null
-        ? { ...session, status: GameState.STAGE_TRANSITION, questionStartedAt: null, pausedAt: null, pendingStage: null }
+        ? {
+            ...session,
+            status: GameState.STAGE_TRANSITION,
+            questionStartedAt: null,
+            pausedAt: null,
+            pendingStage: null,
+          }
         : {
             ...session,
             status: GameState.STAGE_TRANSITION,
@@ -204,7 +251,11 @@ export function transition(
 
 export function createGameSession(
   questions: Question[],
-  options: { totalTime?: number; questionsPerStage?: number; players?: Player[] } = {},
+  options: {
+    totalTime?: number;
+    questionsPerStage?: number;
+    players?: Player[];
+  } = {},
 ): GameSession {
   return {
     status: GameState.LOBBY,

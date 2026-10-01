@@ -9,7 +9,7 @@ function SummaryPage() {
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 
   return (
-    <main className="page">
+    <main className="summary-page">
       <section className="summary-card">
         <div className="summary-header">
           <span className="summary-trophy">🏆</span>

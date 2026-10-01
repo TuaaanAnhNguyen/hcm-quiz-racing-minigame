@@ -1,6 +1,6 @@
 // src/pages/GamePage.tsx
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Timer from "../components/Timer";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
@@ -11,6 +11,11 @@ const STAGE_NAMES: Record<number, string> = {
   3: "Hard Race",
   4: "Final Sprint",
 };
+
+interface AnswerFeedback {
+  answerIndex: number;
+  correct: boolean;
+}
 
 function GamePage() {
   const status = useGameStore((state) => state.status);
@@ -38,6 +43,10 @@ function GamePage() {
       skipQuestion();
     }
   }, [skipQuestion, status]);
+
+  const [answerFeedback, setAnswerFeedback] = useState<AnswerFeedback | null>(
+    null,
+  );
 
   const progressText = useMemo(() => {
     if (!currentQuestion) {
@@ -99,8 +108,26 @@ function GamePage() {
 
   const answered = player.hasAnswered;
 
+  const feedbackOverlay = answerFeedback && (
+    <div className="answer-feedback-overlay">
+      <div
+        className={`answer-feedback-card ${
+          answerFeedback.correct ? "feedback-correct" : "feedback-wrong"
+        }`}
+      >
+        <div className="feedback-icon">
+          {answerFeedback.correct ? "✓" : "✕"}
+        </div>
+
+        <strong>{answerFeedback.correct ? "CORRECT!" : "WRONG!"}</strong>
+      </div>
+    </div>
+  );
+
   return (
     <main className="game-page">
+      {feedbackOverlay}
+
       <section className="game-card">
         <header className="game-header">
           <div>
@@ -127,9 +154,30 @@ function GamePage() {
               <button
                 key={`${currentQuestion.id}-${index}`}
                 type="button"
-                className={`answer-button ${answered ? "answer-disabled" : ""}`}
+                className={[
+                  "answer-button",
+                  answered ? "answer-disabled" : "",
+                  answerFeedback?.answerIndex === index
+                    ? answerFeedback.correct
+                      ? "answer-correct"
+                      : "answer-wrong"
+                    : "",
+                ].join(" ")}
                 disabled={answered}
-                onClick={() => submitAnswer(player.id, index)}
+                onClick={() => {
+                  const correct = index === currentQuestion.correctIndex;
+
+                  setAnswerFeedback({
+                    answerIndex: index,
+                    correct,
+                  });
+
+                  submitAnswer(player.id, index);
+
+                  window.setTimeout(() => {
+                    setAnswerFeedback(null);
+                  }, 700);
+                }}
               >
                 <span className="answer-letter">
                   {String.fromCharCode(65 + index)}
