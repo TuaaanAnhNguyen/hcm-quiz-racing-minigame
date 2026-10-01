@@ -60,12 +60,10 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 
 ## Project Structure
 
-
 ```
 hcm-quiz-racing
 ├─ .oxlintrc.json
 ├─ index.html
-├─ map.txt
 ├─ package-lock.json
 ├─ package.json
 ├─ public
@@ -85,10 +83,15 @@ hcm-quiz-racing
 │  │  │  └─ Podium.tsx
 │  │  └─ Timer.tsx
 │  ├─ data
+│  │  ├─ convertcsv.csv
 │  │  └─ questions.json
 │  ├─ index.css
+│  ├─ lib
+│  │  └─ supabase.ts
 │  ├─ main.tsx
 │  ├─ pages
+│  ├─ services
+│  │  └─ questionService.ts
 │  ├─ store
 │  │  └─ useGameStore.ts
 │  └─ types
