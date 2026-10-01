@@ -1,0 +1,422 @@
+[
+    {
+        "id": "q_easy_01",
+        "question": "Theo Hồ Chí Minh, con người là một chỉnh thể thống nhất về những yếu tố nào?",
+        "options": [
+            "Trí lực, tâm lực, thể lực",
+            "Đạo đức cách mạng, trình độ chuyên môn nghiệp vụ và bản lĩnh chính trị vững vàng",
+            "Lý luận chính trị, năng lực thực tiễn và kinh nghiệm đấu tranh giai cấp",
+            "Gia đình, dòng tộc, giai cấp xã hội và cộng đồng dân tộc"
+        ],
+        "correct_index": 0,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Theo tư tưởng Hồ Chí Minh, con người là một chỉnh thể, thống nhất về trí lực, tâm lực và thể lực[cite: 3]."
+    },
+    {
+        "id": "q_easy_02",
+        "question": "Khi giải thích về \"chữ người\", Hồ Chí Minh nhận định theo nghĩa hẹp là gì?",
+        "options": [
+            "Toàn thể đồng bào lao động cùng chung sống trên lãnh thổ Việt Nam",
+            "Cả loài người đang đấu tranh chống lại ách áp bức của chủ nghĩa đế quốc",
+            "Gia đình, anh em, họ hàng, bè bạn",
+            "Các giai cấp cần lao bao gồm công nhân, nông dân và trí thức cách mạng"
+        ],
+        "correct_index": 2,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Hồ Chí Minh giải thích 'chữ người': 'nghĩa hẹp là gia đình, anh em, họ hàng, bè bạn; nghĩa rộng là đồng bào cả nước; rộng hơn nữa là cả loài người'[cite: 3]."
+    },
+    {
+        "id": "q_easy_03",
+        "question": "Theo Hồ Chí Minh, điều kiện cần thiết đầu tiên để người dân biết rõ giá trị của tự do, độc lập là gì?",
+        "options": [
+            "Được trực tiếp tham gia bầu cử đại biểu Quốc hội và Hội đồng nhân dân các cấp",
+            "Được ăn no, mặc đủ",
+            "Được nâng cao trình độ lý luận chính trị và nhận thức về quyền làm chủ xã hội",
+            "Được bảo đảm hoàn toàn quyền tự do cư trú, đi lại và hội họp công khai"
+        ],
+        "correct_index": 1,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Người khẳng định: 'Dân chỉ biết rõ giá trị của tự do, độc lập khi mà dân được ăn no, mặc đủ'[cite: 3]."
+    },
+    {
+        "id": "q_easy_04",
+        "question": "Bốn nhu cầu thiết yếu hàng ngày của con người được Hồ Chí Minh đúc kết cụ thể là gì?",
+        "options": [
+            "Ăn - Mặc - Ở - Học",
+            "Ăn - Mặc - Bào chế thuốc - Cải thiện phương tiện đi lại công cộng",
+            "Ăn - Mặc - Rèn luyện thể thao - Tham gia sinh hoạt đoàn thể xã hội",
+            "Ăn - Ở - Học hành - Chữa bệnh tại các cơ sở y tế nhà nước"
+        ],
+        "correct_index": 0,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Thước đo cụ thể trong chính sách vì dân theo tư tưởng Hồ Chí Minh là 4 nhu cầu: 'ăn - mặc - ở - học'[cite: 3, 4]."
+    },
+    {
+        "id": "q_easy_05",
+        "question": "Câu nói nào sau đây của Hồ Chí Minh nhấn mạnh vai trò động lực cách mạng của quần chúng nhân dân?",
+        "options": [
+            "Dễ trăm lần không dân cũng chịu, khó vạn lần dân liệu cũng xong",
+            "Nhất niên chi kế mạc như thụ cốc, thập niên chi kế mạc như thụ mộc, bách niên chi kế mạc như thụ nhân",
+            "Hiền, dữ phải đâu là tính sẵn, phần nhiều do giáo dục nghệ thuật và môi trường xã hội mà nên",
+            "Trời có bốn mùa: Xuân, Hạ, Thu, Đông. Đất có bốn phương: Đông, Tây, Nam, Bắc"
+        ],
+        "correct_index": 0,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Câu nói 'Dễ trăm lần không dân cũng chịu, khó vạn lần dân liệu cũng xong' khẳng định nhân dân là động lực và lực lượng quyết định thành công[cite: 6]."
+    },
+    {
+        "id": "q_easy_06",
+        "question": "Trong yêu cầu xây dựng con người toàn diện vừa \"hồng\" vừa \"chuyên\", yếu tố \"hồng\" đề cập đến khía cạnh nào?",
+        "options": [
+            "Trình độ chuyên môn nghiệp vụ, năng lực quản lý kinh tế và tay nghề kỹ thuật cao",
+            "Bồi dưỡng tri thức khoa học - kỹ thuật tiên tiến và khả năng ứng dụng công nghệ hiện đại",
+            "Nâng cao đạo đức cách mạng, quét sạch chủ nghĩa cá nhân",
+            "Phương pháp làm việc khoa học, tác phong công nghiệp và tinh thần kỷ luật lao động"
+        ],
+        "correct_index": 2,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Yếu tố 'Hồng' chính là việc nâng cao đạo đức cách mạng, quét sạch chủ nghĩa cá nhân. Còn 'Chuyên' là bồi dưỡng năng lực chuyên môn, trí tuệ[cite: 8]."
+    },
+    {
+        "id": "q_easy_07",
+        "question": "Phương pháp xây dựng con người nào dưới đây nhấn mạnh sự tác động của vai trò cá nhân tự nhận thức và rèn luyện?",
+        "options": [
+            "Tự rèn luyện, tu dưỡng",
+            "Nêu gương của người đứng đầu bộ máy cơ quan nhà nước và các tổ chức chính trị",
+            "Giáo dục toàn diện thông qua hệ thống trường học từ mầm non đến đại học",
+            "Phát huy vai trò nòng cốt của Đoàn Thanh niên và các đoàn thể chính trị - xã hội"
+        ],
+        "correct_index": 0,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Một trong bốn phương pháp xây dựng con người là mỗi người tự rèn luyện, tu dưỡng ý thức[cite: 8]."
+    },
+    {
+        "id": "q_easy_08",
+        "question": "Bài thơ của Bác có câu \"Hiền, dữ phải đâu là tính sẵn. Phần nhiều do... mà nên\". Từ còn thiếu trong câu thơ là gì?",
+        "options": [
+            "Rèn luyện thể chất và tự giác đấu tranh tư tưởng",
+            "Giáo dục",
+            "Môi trường sinh sống và điều kiện kinh tế gia đình",
+            "Tự nhiên bẩm sinh và hoàn cảnh lịch sử xã hội"
+        ],
+        "correct_index": 1,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Câu thơ đầy đủ là: 'Hiền, dữ phải đâu là tính sẵn / Phần nhiều do giáo dục mà nên', nhấn mạnh vai trò của giáo dục[cite: 9]."
+    },
+    {
+        "id": "q_easy_09",
+        "question": "Thành tố nào được Hồ Chí Minh coi là vốn quý nhất, là nhân tố quyết định thành công của sự nghiệp cách mạng?",
+        "options": [
+            "Con người",
+            "Vũ khí trang bị hiện đại và tiềm lực quốc phòng ninh vững chắc",
+            "Tài nguyên thiên nhiên phong phú cùng nguồn vốn đầu tư phát triển",
+            "Nguồn lực kinh tế tập trung và hệ thống hạ tầng kỹ thuật đồng bộ"
+        ],
+        "correct_index": 0,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Hồ Chí Minh chỉ rõ con người là vốn quý nhất, là động lực, là nhân tố quyết định thành công của sự nghiệp cách mạng[cite: 6]."
+    },
+    {
+        "id": "q_easy_10",
+        "question": "Mục đích giải phóng con người theo tư tưởng Hồ Chí Minh hướng tới điều gì cao nhất?",
+        "options": [
+            "Tập trung ưu tiên xây dựng nền sản xuất tự động hóa hiện đại để tăng năng suất lao động xã hội",
+            "Giúp con người hưởng tự do, hạnh phúc và phát triển toàn diện",
+            "Xóa bỏ toàn bộ các nghĩa vụ pháp lý tối thiểu đối với Nhà nước để mở rộng tự do tuyệt đối",
+            "Củng cố và nâng cao tối đa quyền lực điều hành cho các cơ quan quản lý nhà nước"
+        ],
+        "correct_index": 1,
+        "difficulty": "easy",
+        "base_score": 100,
+        "explanation": "Giải phóng con người là xóa bỏ áp bức, bóc lột để mọi người hưởng tự do, hạnh phúc, phát huy sáng tạo và phát triển toàn diện[cite: 5]."
+    },
+    {
+        "id": "q_medium_01",
+        "question": "Trong thực tiễn, Hồ Chí Minh xem xét con người thông qua mấy chiều quan hệ cơ bản?",
+        "options": [
+            "2 chiều quan hệ (quan hệ giai cấp và quan hệ dân tộc)",
+            "3 chiều quan hệ",
+            "4 chiều quan hệ (quan hệ gia đình, dòng tộc, giai cấp và quốc tế)",
+            "5 chiều quan hệ (quan hệ chính trị, kinh tế, văn hóa, tư tưởng và đạo đức)"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Con người trong thực tiễn có 3 chiều quan hệ: với cộng đồng xã hội, với chế độ xã hội, và với tự nhiên[cite: 4]."
+    },
+    {
+        "id": "q_medium_02",
+        "question": "Nét đặc sắc trong phương pháp nhìn nhận con người của Hồ Chí Minh là gì?",
+        "options": [
+            "Tuyệt đối hóa bản chất sinh học thuần túy để giải thích các hành vi đạo đức xã hội",
+            "Xem xét con người theo hình mẫu tư tưởng trừu tượng, thoát khỏi điều kiện kinh tế lịch sử",
+            "Nhìn nhận đặc điểm con người Việt Nam gắn với điều kiện lịch sử và cấu trúc kinh tế - xã hội cụ thể",
+            "Tách rời cá nhân khỏi tập thể xã hội nhằm tôn vinh quyền tự do sáng tạo cá nhân tuyệt đối"
+        ],
+        "correct_index": 2,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Bác nhìn nhận đặc điểm con người Việt Nam gắn với điều kiện lịch sử và cấu trúc kinh tế - xã hội cụ thể[cite: 4]."
+    },
+    {
+        "id": "q_medium_03",
+        "question": "Mục tiêu giải phóng con người trong tư tưởng Hồ Chí Minh bao gồm thực hiện mấy cuộc giải phóng?",
+        "options": [
+            "2 giải phóng (Giải phóng dân tộc và Giải phóng giai cấp)",
+            "3 giải phóng (Giải phóng dân tộc, Giải phóng giai cấp và Giải phóng lực lượng sản xuất)",
+            "4 giải phóng",
+            "5 giải phóng (Giải phóng dân tộc, giai cấp, xã hội, phụ nữ và lực lượng sản xuất)"
+        ],
+        "correct_index": 2,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Mục đích là thực hiện 4 giải phóng: Giải phóng dân tộc, Giải phóng xã hội, Giải phóng giai cấp, và Giải phóng con người[cite: 5]."
+    },
+    {
+        "id": "q_medium_04",
+        "question": "Theo Hồ Chí Minh, mối quan hệ biện chứng giữa Chủ nghĩa xã hội (CNXH) và Con người XHCN là gì?",
+        "options": [
+            "CNXH tạo ra con người XHCN, và con người XHCN là động lực xây dựng CNXH",
+            "Phải tập trung xây dựng hoàn chỉnh và vững chắc cơ sở vật chất - kỹ thuật của CNXH trước, sau đó con người XHCN sẽ tự động hình thành mà không cần đào tạo",
+            "Chỉ cần ưu tiên phát triển nền kinh tế thị trường định hướng XHCN thật mạnh mẽ thì toàn bộ đạo đức con người XHCN sẽ tự giác được nâng cao",
+            "Con người XHCN chỉ có thể xuất hiện khi lực lượng sản xuất đạt đến trình độ phát triển tối cao và toàn cầu hóa hoàn hoàn"
+        ],
+        "correct_index": 0,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Đây là mối quan hệ biện chứng: CNXH tạo ra con người XHCN, và con người XHCN là động lực xây dựng CNXH[cite: 7]."
+    },
+    {
+        "id": "q_medium_05",
+        "question": "Quan điểm phương Đông \"Một tấm gương sống có giá trị hơn một trăm bài diễn văn tuyên truyền\" thể hiện phương pháp xây dựng con người nào?",
+        "options": [
+            "Tự rèn luyện, tu dưỡng nghiêm túc ý thức đạo đức cá nhân trong đời sống hàng ngày",
+            "Nêu gương, nhất là người đứng đầu",
+            "Thực hiện các phong trào thi đua yêu nước sâu rộng trong cộng đồng cư dân",
+            "Dựa vào ý kiến đóng góp trực tiếp của nhân dân để chấn chỉnh tác phong làm việc"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Trích dẫn này nhấn mạnh tầm quan trọng của phương pháp 'Nêu gương, nhất là người đứng đầu'[cite: 8, 9]."
+    },
+    {
+        "id": "q_medium_06",
+        "question": "Ý nghĩa thực tế của quan điểm \"trong mỗi người đều có tính tốt và tính xấu\" theo Hồ Chí Minh là gì?",
+        "options": [
+            "Khẳng định bản chất con người sinh ra đã hoàn hảo, mọi sai lầm đều do các yếu tố bên ngoài cưỡng ép",
+            "Không ai hoàn hảo và cũng không ai hỏng hẳn, nhiệm vụ của tổ chức là giúp phát huy mặt tốt, khắc phục mặt xấu",
+            "Tập trung toàn bộ lực lượng để nghiêm trị và loại bỏ những cá nhân có tính xấu ra khỏi tổ chức ngay từ đầu",
+            "Bản chất tốt hay xấu của con người do yếu tố di truyền tự nhiên quyết định hoàn toàn, không thể cải tạo"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Ý nghĩa thực tế là không ai hoàn hảo và không ai hỏng hẳn, vì vậy nhiệm vụ là phát huy mặt tốt, khắc phục mặt xấu[cite: 3]."
+    },
+    {
+        "id": "q_medium_07",
+        "question": "Cách Hồ Chí Minh viết thư riêng cho từng đối tượng (thiếu nhi, phụ nữ, bộ đội, trí thức...) thể hiện tư tưởng nào?",
+        "options": [
+            "Sự phân biệt đối xử mang tính cá nhân giữa các tầng lớp trong xã hội",
+            "Góc nhìn con người \"lịch sử - cụ thể\"",
+            "Chính sách ưu tiên tập trung phát triển tầng lớp trí thức vượt trội hơn các tầng lớp lao động khác",
+            "Nhìn nhận con người mang tính khái quát trừu tượng, chung chung cho mọi giai cấp"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Bác viết thư cho từng đối tượng với cách nói và nhiệm vụ riêng là biểu hiện của cách nhìn con người 'lịch sử - cụ thể'[cite: 4]."
+    },
+    {
+        "id": "q_medium_08",
+        "question": "Theo Hồ Chí Minh, việc \"trồng người\" cần được tiến hành như thế nào trong chiến lược phát triển?",
+        "options": [
+            "Chỉ nên triển khai sau khi đất nước đã hoàn thành xong công nghiệp hóa và tích lũy đủ tiềm lực kinh tế vững mạnh",
+            "Vừa cấp bách vừa lâu dài, là trọng tâm gắn liền với xây dựng chính trị, kinh tế, văn hóa, xã hội",
+            "Là nhiệm vụ chuyên môn biệt lập của ngành giáo dục và đào tạo, không liên quan đến các ngành kinh tế khác",
+            "Chỉ tập trung giải quyết trong thời kỳ chiến tranh giải phóng, khi đất nước hòa bình thì tự động hoàn thành"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "Xây dựng con người là yêu cầu khách quan, vừa cấp bách vừa lâu dài, gắn chặt với xây dựng chính trị, kinh tế, văn hóa, xã hội[cite: 6]."
+    },
+    {
+        "id": "q_medium_09",
+        "question": "Cụm từ \"Trước hết cần có những con người XHCN\" trong tư tưởng Hồ Chí Minh có nghĩa là gì?",
+        "options": [
+            "Cần có những con người mang nét tiêu biểu về lý tưởng, đạo đức, lối sống XHCN đi trước làm gương",
+            "Bắt buộc phải đào tạo toàn bộ quần chúng nhân dân trở thành các chuyên gia lý luận chính trị cao cấp trước khi tiến hành xây dựng xã hội mới",
+            "Tạm dừng các phong trào sản xuất để chờ xây dựng xong hệ thống kinh tế hoàn chỉnh rồi mới đào tạo con người",
+            "Chỉ tập trung bồi dưỡng thế hệ trẻ và thiếu niên, bỏ qua việc giáo dục cải tạo thế hệ lớn tuổi"
+        ],
+        "correct_index": 0,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "'Trước hết cần có những con người XHCN' nghĩa là cần những người tiêu biểu về lý tưởng, đạo đức, tác phong đi trước làm gương[cite: 7]."
+    },
+    {
+        "id": "q_medium_10",
+        "question": "Nội dung xây dựng con người theo Bác cần bồi dưỡng về mặt \"Chuyên\" bao gồm những yếu tố nào?",
+        "options": [
+            "Tu dưỡng lòng trung thành vô điều kiện, tinh thần chịu đựng gian khổ và loại bỏ mọi nhu cầu cá nhân",
+            "Năng lực trí tuệ, trình độ lý luận, văn hóa, khoa học - kỹ thuật, chuyên môn, sức khỏe",
+            "Nâng cao đạo đức cách mạng, quét sạch chủ nghĩa cá nhân và tinh thần tương thân tương ái",
+            "Thực hành tiết kiệm, chống lãng phí, tham nhũng và củng cố tinh thần đoàn kết nội bộ"
+        ],
+        "correct_index": 1,
+        "difficulty": "medium",
+        "base_score": 150,
+        "explanation": "'Chuyên' là bồi dưỡng năng lực trí tuệ, trình độ lý luận chính trị, văn hóa, khoa học - kỹ thuật, chuyên môn nghiệp vụ, ngoại ngữ, sức khỏe[cite: 8]."
+    },
+    {
+        "id": "q_hard_01",
+        "question": "Mối quan hệ giữa 4 nội dung giải phóng (Dân tộc, Xã hội, Giai cấp, Con người) được thể hiện như thế nào?",
+        "options": [
+            "Ưu tiên tuyệt đối việc hoàn thành trọn vẹn giải phóng giai cấp trước, xem đó là điều kiện tiên quyết duy nhất để tự động dẫn tới giải phóng dân tộc và con người",
+            "Mỗi nội dung giải phóng hoàn toàn độc lập, diễn ra ở các thời kỳ lịch sử tách biệt và không có sự tác động qua lại lẫn nhau",
+            "Kết hợp chặt chẽ và nối tiếp nhau",
+            "Giải phóng con người cá nhân phải được hoàn thành triệt để trước, sau đó mới tạo tiền đề tổ chức cuộc đấu tranh giải phóng dân tộc và giai cấp"
+        ],
+        "correct_index": 2,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Mối quan hệ giữa 4 giải phóng là kết hợp chặt chẽ và nối tiếp nhau (giải phóng dân tộc mở đường cho giải phóng xã hội, giai cấp, con người)[cite: 5]."
+    },
+    {
+        "id": "q_hard_02",
+        "question": "Câu nói \"Vì lợi ích mười năm thì phải trồng cây; vì lợi ích trăm năm thì phải trồng người\" xuất phát từ tư tưởng của ai thời Xuân Thu?",
+        "options": [
+            "Khổng Tử trong tác phẩm Luận Ngữ khi bàn về giáo dục nhân nghĩa",
+            "Quản Trọng",
+            "Tuân Tử trong thuyết Tính ác khi nhấn mạnh vai trò cải tạo con người",
+            "Lão Tử trong Đạo Đức Kinh khi đề xướng triết lý vô vi và thuận tự nhiên"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Quan điểm này xuất phát từ câu nói của Quản Trọng thời Xuân Thu, được Bác kế thừa và phát triển[cite: 7]."
+    },
+    {
+        "id": "q_hard_03",
+        "question": "Để củng cố và mở rộng phong trào cách mạng, Hồ Chí Minh chỉ rõ chiến lược tác động vào các nhóm lực lượng như thế nào?",
+        "options": [
+            "Tập trung toàn bộ nguồn lực giáo dục cho nhóm tiên tiến để họ tự gánh vác mọi nhiệm vụ mà không cần huy động quần chúng",
+            "Nâng cao trình độ giác ngộ của bộ phận trung gian để kéo bộ phận chậm tiến",
+            "Chủ động cô lập và kiên quyết loại bỏ lực lượng chậm tiến ra khỏi tổ chức để giữ vững sự trong sạch tuyệt đối cho phong trào",
+            "Thụ động chờ đợi bộ phận chậm tiến tự giác chuyển biến nhận thức thông qua sự tự phát của điều kiện kinh tế"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Bác chỉ rõ trong phong trào, tiên tiến là số ít, trung gian là số đông; muốn mở rộng phong trào cần nâng cao giác ngộ của lực lượng trung gian để kéo bộ phận chậm tiến[cite: 7]."
+    },
+    {
+        "id": "q_hard_04",
+        "question": "Trong việc sửa chữa cán bộ và tổ chức, Hồ Chí Minh đặc biệt nhấn mạnh nguyên tắc dựa vào yếu tố nào?",
+        "options": [
+            "Chỉ căn cứ duy nhất vào các văn bản kết luận kiểm tra nội bộ và chỉ thị đánh giá từ cơ quan cấp trên",
+            "Dựa vào ý kiến của dân chúng",
+            "Tham khảo mô hình quản trị và đánh giá nhân sự từ các chuyên gia cố vấn quốc tế",
+            "Căn cứ chủ yếu vào sự tự giác nhận lỗi của bản thân cán bộ mà không cần xác minh từ bên ngoài"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Bác dạy phải dựa vào quần chúng, theo quan điểm 'dựa vào ý kiến của dân chúng mà sửa chữa cán bộ và tổ chức của ta'[cite: 9]."
+    },
+    {
+        "id": "q_hard_05",
+        "question": "Thành tựu giải phóng nào đóng vai trò tiên phong, mở đường cho các cuộc giải phóng tiếp theo trong tiến trình cách mạng Việt Nam?",
+        "options": [
+            "Giải phóng giai cấp thông qua việc thủ tiêu chế độ tư hữu và xác lập quyền sở hữu toàn dân",
+            "Giải phóng xã hội thông qua việc xây dựng nền kinh tế phát triển cao và văn hóa tiến bộ",
+            "Giải phóng dân tộc",
+            "Giải phóng con người cá nhân khỏi các định kiến đạo đức phong kiến và tư tưởng lạc hậu"
+        ],
+        "correct_index": 2,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Giải phóng dân tộc mở đường cho giải phóng xã hội, giải phóng giai cấp và giải phóng con người[cite: 5]."
+    },
+    {
+        "id": "q_hard_06",
+        "question": "Quan điểm phương Đông \"Tiên trách kỷ, hậu trách nhân\" được ứng dụng như thế nào trong phương pháp nêu gương của cán bộ?",
+        "options": [
+            "Kiên quyết vạch lá tìm sâu, tập trung phê bình khuyết điểm của cấp dưới trước để làm bài học răn đe chung",
+            "Tự kiểm điểm, trách bản thân trước rồi mới phê bình người khác",
+            "Đổ lỗi cho hoàn cảnh khách quan và sự thiếu sót của tập thể để bảo vệ uy tín cá nhân người đứng đầu",
+            "Chỉ công khai nhận khuyết điểm khi có yêu cầu kiểm tra bắt buộc từ tổ chức cấp trên"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "'Tiên trách kỷ, hậu trách nhân' nghĩa là người lãnh đạo/cán bộ phải tự nhận trách nhiệm, phê bình bản thân mình trước khi trách người khác[cite: 9]."
+    },
+    {
+        "id": "q_hard_07",
+        "question": "Sự kết hợp giữa \"Hồng\" và \"Chuyên\" trong ngành y theo lời dạy của Bác \"Lương y phải như từ mẫu\" thể hiện cụ thể là gì?",
+        "options": [
+            "Tuyệt đối hóa y đức 'từ mẫu', coi lòng thương bệnh nhân là yếu tố duy nhất có thể thay thế cho trình độ tay nghề kỹ thuật",
+            "Bác sĩ giỏi tay nghề là 'chuyên', thương bệnh nhân như người nhà là 'hồng'",
+            "Tập trung đầu tư tối đa vào tay nghề chuyên môn hiện đại để tăng thu nhập kinh tế cho cơ sở y tế",
+            "Ưu tiên thực hiện nhiệm vụ tuyên truyền chính trị trong y tế hơn là nâng cao hiệu quả chữa bệnh thực tế"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Giỏi tay nghề chuyên môn là 'chuyên', tận tụy thương yêu bệnh nhân như người nhà là 'hồng'. Giỏi thiếu đức dễ trục lợi, có tâm thiếu tài không cứu được người[cite: 8]."
+    },
+    {
+        "id": "q_hard_08",
+        "question": "Lao động sản xuất, đấu tranh chính trị - xã hội và sáng tạo các giá trị văn hóa được Hồ Chí Minh xác định là gì của nhân dân?",
+        "options": [
+            "Những nghĩa vụ pháp lý bắt buộc mà Nhà nước quy định cho từng công dân trong thời kỳ quá độ",
+            "Các hoạt động thực tiễn cơ bản nhất để nhân dân sáng tạo ra lịch sử",
+            "Các công việc phụ trợ nhằm củng cố quyền lực quản lý cho bộ máy hành chính nhà nước",
+            "Trách nhiệm xã hội riêng biệt của lực lượng nòng cốt thuộc giai cấp công nhân hiện đại"
+        ],
+        "correct_index": 1,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Nhân dân là người sáng tạo chân chính ra lịch sử thông qua các hoạt động thực tiễn cơ bản: lao động sản xuất, đấu tranh chính trị - xã hội, sáng tạo giá trị văn hóa[cite: 6]."
+    },
+    {
+        "id": "q_hard_09",
+        "question": "Hồ Chí Minh phê phán gay gắt cách nhìn nhận con người như thế nào?",
+        "options": [
+            "Nhìn nhận con người luôn gắn liền với hoàn cảnh lịch sử và vị trí xã hội cụ thể",
+            "Nhìn nhận con người mang tính hai mặt, tồn tại cả tính tốt lẫn tính xấu",
+            "Con người trừu tượng, phi nguồn gốc lịch sử",
+            "Nhìn nhận con người trong tổng hòa các mối quan hệ xã hội đa dạng"
+        ],
+        "correct_index": 2,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Hồ Chí Minh xa lạ với cách nhìn nhận con người trừu tượng, phi nguồn gốc lịch sử[cite: 4]."
+    },
+    {
+        "id": "q_hard_10",
+        "question": "Việc coi \"nhân lực chất lượng cao là yếu tố then chốt\" trong thời đại chuyển đổi số hiện nay là sự vận dụng trực tiếp tư tưởng nào của Bác?",
+        "options": [
+            "Muốn xây dựng CNXH, trước hết cần có những con người XHCN",
+            "Dân dĩ thực vi thiên, lấy sự no ấm của nhân dân làm gốc rễ cho sự ổn định đất nước",
+            "Hiền, dữ phải đâu là tính sẵn, phần nhiều do giáo dục mà nên",
+            "Trời có bốn mùa, đất có bốn phương, người có bốn đức: Cần, Kiệm, Liêm, Chính"
+        ],
+        "correct_index": 0,
+        "difficulty": "hard",
+        "base_score": 200,
+        "explanation": "Muốn có chính quyền số và chuyển đổi số thành công thì trước hết phải có con người số mang đủ năng lực và phẩm chất, đây chính là tinh thần 'muốn xây dựng CNXH, trước hết cần con người XHCN'[cite: 7, 8]."
+    }
+]

@@ -60,20 +60,42 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 
 ## Project Structure
 
-```text
-hcm-quiz-racing/
-├── src/
-│   ├── assets/         # Static visual assets
-│   ├── components/     # Reusable UI components
-│   │   ├── game/       # Racing track & timer components
-│   │   └── summary/    # Leaderboard & podium components
-│   ├── data/           # Questions JSON
-│   ├── pages/          # View pages (Admin, Player, Summary)
-│   ├── store/          # Zustand global store & sync
-│   ├── types/          # TypeScript interface definitions
-│   ├── App.tsx         # Root component & view router
-│   ├── index.css       
-│   └── main.tsx        # Entry point
-├── public/             # Public static assets
-└── vite.config.ts      # Vite & Tailwind configuration
+
+```
+hcm-quiz-racing
+├─ .oxlintrc.json
+├─ index.html
+├─ map.txt
+├─ package-lock.json
+├─ package.json
+├─ public
+│  ├─ favicon.svg
+│  └─ icons.svg
+├─ README.md
+├─ src
+│  ├─ App.css
+│  ├─ App.tsx
+│  ├─ assets
+│  │  ├─ hero.png
+│  │  ├─ react.svg
+│  │  └─ vite.svg
+│  ├─ components
+│  │  ├─ game
+│  │  ├─ summary
+│  │  │  └─ Podium.tsx
+│  │  └─ Timer.tsx
+│  ├─ data
+│  │  └─ questions.json
+│  ├─ index.css
+│  ├─ main.tsx
+│  ├─ pages
+│  ├─ store
+│  │  └─ useGameStore.ts
+│  └─ types
+│     └─ game.ts
+├─ tsconfig.app.json
+├─ tsconfig.json
+├─ tsconfig.node.json
+└─ vite.config.ts
+
 ```
