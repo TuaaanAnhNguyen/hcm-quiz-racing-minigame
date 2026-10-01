@@ -63,6 +63,9 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 ```
 hcm-quiz-racing
 ├─ .oxlintrc.json
+├─ agent_guide
+│  └─ GAME_STATE_MACHINE_GUIDE.md
+├─ eslint.config.js
 ├─ index.html
 ├─ package-lock.json
 ├─ package.json
@@ -79,17 +82,30 @@ hcm-quiz-racing
 │  │  └─ vite.svg
 │  ├─ components
 │  │  ├─ game
+│  │  │  ├─ AnswerButton.tsx
+│  │  │  ├─ PlayerStatus.tsx
+│  │  │  └─ QuestionCard.tsx
 │  │  ├─ summary
 │  │  │  └─ Podium.tsx
 │  │  └─ Timer.tsx
 │  ├─ data
 │  │  ├─ convertcsv.csv
 │  │  └─ questions.json
+│  ├─ game
+│  │  ├─ gameReducer.test.ts
+│  │  ├─ gameReducer.ts
+│  │  ├─ questionSelector.ts
+│  │  ├─ scoring.ts
+│  │  ├─ stages.ts
+│  │  └─ timer.ts
 │  ├─ index.css
 │  ├─ lib
 │  │  └─ supabase.ts
 │  ├─ main.tsx
 │  ├─ pages
+│  │  ├─ GamePage.tsx
+│  │  ├─ LobbyPage.tsx
+│  │  └─ SummaryPage.tsx
 │  ├─ services
 │  │  └─ questionService.ts
 │  ├─ store

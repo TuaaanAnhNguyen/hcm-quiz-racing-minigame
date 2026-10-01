@@ -1,82 +1,164 @@
-// src/store/useGameStore.ts
-
 import { create } from "zustand";
+import initialQuestions from "../data/questions.json";
+import { createGameSession, transition } from "../game/gameReducer";
+import { organizeQuestionsByStage } from "../game/questionSelector";
+import { getTimeLeft } from "../game/timer";
 import {
   GameState,
+  type GameSession,
   type Player,
   type Question,
-  type StageNumber,
-  type SyncPayload,
 } from "../types/game";
-import initialQuestions from "../data/questions.json";
 
 const SYNC_CHANNEL_NAME = "hcm_quiz_racing_sync";
+
+interface RawQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correct_index: number;
+  difficulty: "easy" | "medium" | "hard";
+  base_score: number;
+  duration_seconds?: number;
+  explanation?: string;
+}
+
+function normalizeQuestions(rawQuestions: RawQuestion[]): Question[] {
+  return rawQuestions.map((question) => ({
+    id: question.id,
+    question: question.question,
+    options: question.options,
+    correctIndex: question.correct_index,
+    difficulty: question.difficulty,
+    baseScore: question.base_score,
+    durationSeconds: question.duration_seconds ?? 20,
+    explanation: question.explanation,
+  }));
+}
+
+const defaultQuestions = organizeQuestionsByStage(
+  normalizeQuestions(initialQuestions as RawQuestion[]),
+  2,
+);
+
 const broadcastChannel =
   typeof window !== "undefined"
     ? new BroadcastChannel(SYNC_CHANNEL_NAME)
     : null;
 
-interface GameStore {
-  // State
-  gameState: GameState;
-  currentStage: StageNumber;
-  currentQuestionIndex: number;
-  timeRemaining: number;
-  players: Player[];
-  questions: Question[];
-  activePlayerId: string | null;
-
-  // Actions
-  setGameState: (state: GameState) => void;
-  registerPlayer: (name: string, carColor: string) => string;
-  submitAnswer: (playerId: string, optionIndex: number) => void;
+interface GameStore extends GameSession {
+  startGame: () => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
+  submitAnswer: (playerId: string, answerIndex: number) => void;
   nextQuestion: () => void;
+  skipQuestion: () => void;
+  forceNextStage: () => void;
+  continueStage: () => void;
   resetGame: () => void;
-  loadCustomQuestions: (questions: Question[]) => void;
-  setActivePlayerId: (id: string) => void;
-  tickTimer: () => void;
+  registerPlayer: (name: string, carColor: string) => string;
+  loadCustomQuestions: (
+    questions: Question[],
+    questionsPerStage?: number,
+  ) => void;
+  getTimeRemaining: (now?: number) => number;
+  setGameState: (state: GameState) => void;
+}
+
+const initialSession = createGameSession(defaultQuestions, {
+  questionsPerStage: 2,
+});
+
+/**
+ * Extract only the GameSession data.
+ *
+ * Zustand's get() also contains all of the store's action functions.
+ * Functions cannot be sent through BroadcastChannel.
+ */
+function getSession(store: GameStore): GameSession {
+  return {
+    status: store.status,
+    stage: store.stage,
+    questions: store.questions,
+    questionsPerStage: store.questionsPerStage,
+    currentQuestionIndex: store.currentQuestionIndex,
+    questionStartedAt: store.questionStartedAt,
+    totalTime: store.totalTime,
+    pausedAt: store.pausedAt,
+    accumulatedPausedDuration: store.accumulatedPausedDuration,
+    pendingStage: store.pendingStage,
+    players: store.players,
+    answerHistory: store.answerHistory,
+  };
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
-  // Broadcast Sync Handler
-  if (broadcastChannel) {
-    broadcastChannel.onmessage = (event: MessageEvent<SyncPayload>) => {
-      const { type, payload } = event.data;
-      if (type === "STATE_UPDATE") {
-        set(payload);
-      }
-    };
-  }
+  /**
+   * Send only serializable GameSession data.
+   */
+  const sync = (session: GameSession) => {
+    broadcastChannel?.postMessage({
+      type: "STATE_UPDATE",
+      payload: session,
+    });
+  };
 
-  const syncState = (newState: Partial<GameStore>) => {
-    if (broadcastChannel) {
-      broadcastChannel.postMessage({
-        type: "STATE_UPDATE",
-        payload: newState,
-      });
+  /**
+   * Run a game event through A's game state machine.
+   */
+  const applyEvent = (event: Parameters<typeof transition>[1]) => {
+    const current = getSession(get());
+    const nextSession = transition(current, event);
+
+    if (nextSession !== current) {
+      set(nextSession);
+      sync(nextSession);
     }
   };
 
-  return {
-    gameState: GameState.LOBBY,
-    currentStage: 1,
-    currentQuestionIndex: 0,
-    timeRemaining: 15,
-    players: [],
-    questions: initialQuestions as Question[],
-    activePlayerId: null,
-
-    setActivePlayerId: (id: string) => set({ activePlayerId: id }),
-
-    setGameState: (gameState: GameState) => {
-      const stateUpdate = { gameState };
-      set(stateUpdate);
-      syncState(stateUpdate);
+  broadcastChannel?.addEventListener(
+    "message",
+    (event: MessageEvent<{ type: string; payload: GameSession }>) => {
+      if (event.data?.type === "STATE_UPDATE" && event.data.payload?.status) {
+        set(event.data.payload);
+      }
     },
+  );
 
-    registerPlayer: (name: string, carColor: string) => {
-      const id = `player_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-      const newPlayer: Player = {
+  return {
+    ...initialSession,
+
+    startGame: () => applyEvent({ type: "START_GAME" }),
+
+    pauseGame: () => applyEvent({ type: "PAUSE_GAME" }),
+
+    resumeGame: () => applyEvent({ type: "RESUME_GAME" }),
+
+    submitAnswer: (playerId, answerIndex) =>
+      applyEvent({
+        type: "SUBMIT_ANSWER",
+        playerId,
+        answerIndex,
+      }),
+
+    nextQuestion: () => applyEvent({ type: "NEXT_QUESTION" }),
+
+    skipQuestion: () => applyEvent({ type: "SKIP_QUESTION" }),
+
+    forceNextStage: () => applyEvent({ type: "FORCE_NEXT_STAGE" }),
+
+    continueStage: () => applyEvent({ type: "CONTINUE_STAGE" }),
+
+    resetGame: () => applyEvent({ type: "RESET_GAME" }),
+
+    registerPlayer: (name, carColor) => {
+      const current = getSession(get());
+
+      const id = `player_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 6)}`;
+
+      const player: Player = {
         id,
         name,
         carColor,
@@ -85,109 +167,49 @@ export const useGameStore = create<GameStore>((set, get) => {
         correctAnswersCount: 0,
       };
 
-      const updatedPlayers = [...get().players, newPlayer];
-      const stateUpdate = { players: updatedPlayers };
+      const nextSession: GameSession = {
+        ...current,
+        players: [...current.players, player],
+      };
 
-      set(stateUpdate);
-      syncState(stateUpdate);
+      set(nextSession);
+      sync(nextSession);
+
       return id;
     },
 
-    submitAnswer: (playerId: string, optionIndex: number) => {
-      const { questions, currentQuestionIndex, players } = get();
-      const currentQuestion = questions[currentQuestionIndex];
-      if (!currentQuestion) return;
+    loadCustomQuestions: (questions, questionsPerStage = 2) => {
+      const nextSession = createGameSession(
+        organizeQuestionsByStage(questions, questionsPerStage),
+        { questionsPerStage },
+      );
 
-      const isCorrect = optionIndex === currentQuestion.correctIndex;
-      const pointsEarned = isCorrect ? currentQuestion.baseScore : 0;
-
-      const updatedPlayers = players.map((player) => {
-        if (player.id !== playerId) return player;
-        return {
-          ...player,
-          hasAnswered: true,
-          score: player.score + pointsEarned,
-          correctAnswersCount: isCorrect
-            ? player.correctAnswersCount + 1
-            : player.correctAnswersCount,
-          lastAnswerCorrect: isCorrect,
-        };
-      });
-
-      const stateUpdate = { players: updatedPlayers };
-      set(stateUpdate);
-      syncState(stateUpdate);
+      set(nextSession);
+      sync(nextSession);
     },
 
-    nextQuestion: () => {
-      const { currentQuestionIndex, questions, currentStage } = get();
-      const nextIndex = currentQuestionIndex + 1;
+    getTimeRemaining: (now) => getTimeLeft(getSession(get()), now),
 
-      // Reset turn status for players
-      const resetPlayers = get().players.map((p) => ({
-        ...p,
-        hasAnswered: false,
-        lastAnswerCorrect: undefined,
-      }));
-
-      if (nextIndex >= questions.length) {
-        const stateUpdate = {
-          gameState: GameState.SUMMARY,
-          players: resetPlayers,
-        };
-        set(stateUpdate);
-        syncState(stateUpdate);
-        return;
+    setGameState: (state) => {
+      if (state === GameState.LOBBY) {
+        return applyEvent({ type: "RESET_GAME" });
       }
 
-      // Progress stages every 2 questions
-      const nextStage = Math.min(
-        4,
-        Math.floor(nextIndex / 2) + 1,
-      ) as StageNumber;
-
-      const stateUpdate = {
-        currentQuestionIndex: nextIndex,
-        currentStage: nextStage,
-        timeRemaining: 15,
-        players: resetPlayers,
-        gameState:
-          nextStage !== currentStage
-            ? GameState.STAGE_TRANSITION
-            : GameState.PLAYING,
-      };
-
-      set(stateUpdate);
-      syncState(stateUpdate);
-    },
-
-    tickTimer: () => {
-      const { timeRemaining } = get();
-      if (timeRemaining > 0) {
-        set({ timeRemaining: timeRemaining - 1 });
+      if (state === GameState.PLAYING) {
+        return applyEvent({
+          type: get().status === GameState.LOBBY ? "START_GAME" : "RESUME_GAME",
+        });
       }
-    },
 
-    loadCustomQuestions: (customQuestions: Question[]) => {
-      const stateUpdate = {
-        questions: customQuestions,
-        currentQuestionIndex: 0,
-        currentStage: 1 as StageNumber,
-      };
-      set(stateUpdate);
-      syncState(stateUpdate);
-    },
+      if (state === GameState.PAUSED) {
+        return applyEvent({ type: "PAUSE_GAME" });
+      }
 
-    resetGame: () => {
-      const stateUpdate = {
-        gameState: GameState.LOBBY,
-        currentStage: 1 as StageNumber,
-        currentQuestionIndex: 0,
-        timeRemaining: 15,
-        players: [],
-      };
-      set(stateUpdate);
-      syncState(stateUpdate);
+      if (state === GameState.STAGE_TRANSITION) {
+        return applyEvent({ type: "FORCE_NEXT_STAGE" });
+      }
+
+      return applyEvent({ type: "FORCE_NEXT_STAGE" });
     },
   };
 });
