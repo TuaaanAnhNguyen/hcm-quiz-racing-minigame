@@ -30,13 +30,51 @@ export interface Player {
   lastAnswerCorrect?: boolean;
 }
 
-export enum GameState {
-  LOBBY = "lobby",
-  PLAYING = "playing",
-  PAUSED = "paused",
-  STAGE_TRANSITION = "stage_transition",
-  SUMMARY = "summary",
+export const GameState = {
+  LOBBY: "lobby",
+  PLAYING: "playing",
+  PAUSED: "paused",
+  STAGE_TRANSITION: "stage_transition",
+  SUMMARY: "summary",
+} as const;
+
+export type GameState = (typeof GameState)[keyof typeof GameState];
+
+export interface AnswerRecord {
+  playerId: string;
+  questionId: string;
+  selectedIndex: number | null;
+  correct: boolean;
+  scoreEarned: number;
+  timeLeft: number;
 }
+
+export interface GameSession {
+  status: GameState;
+  stage: StageNumber;
+  questions: Question[];
+  questionsPerStage: number;
+  currentQuestionIndex: number;
+  questionStartedAt: number | null;
+  totalTime: number;
+  pausedAt: number | null;
+  accumulatedPausedDuration: number;
+  pendingStage: StageNumber | null;
+  players: Player[];
+  answerHistory: AnswerRecord[];
+}
+
+export type GameEvent =
+  | { type: "START_GAME" }
+  | { type: "PAUSE_GAME" }
+  | { type: "RESUME_GAME" }
+  | { type: "SUBMIT_ANSWER"; playerId: string; answerIndex: number }
+  | { type: "TIME_EXPIRED" }
+  | { type: "NEXT_QUESTION" }
+  | { type: "SKIP_QUESTION" }
+  | { type: "FORCE_NEXT_STAGE" }
+  | { type: "CONTINUE_STAGE" }
+  | { type: "RESET_GAME" };
 
 export interface SyncPayload {
   type: "STATE_UPDATE" | "SUBMIT_ANSWER" | "TRIGGER_ACTION";
