@@ -1,75 +1,101 @@
-# React + TypeScript + Vite
+# HCM Quiz Racing
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based quiz racing game.
 
-Currently, two official plugins are available:
+Players answer quiz questions to earn points and advance their racing cars along a track. The game progresses through four stages with varying difficulties and scoring rules.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+- React + TypeScript
+- Vite
+- Zustand (State Management & BroadcastChannel Sync)
+- Tailwind CSS (v4)
+- Framer Motion
+- Lucide React
+- Canvas Confetti
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Game Stages & Scoring
 
-## Expanding the ESLint configuration
+| Stage | Name      | Difficulty | Theme  | Correct Answer  | Wrong Answer    |
+| ----- | --------- | ---------- | ------ | --------------- | --------------- |
+| 1     | Khởi động | Easy       | Green  | `+BaseScore`    | `0`             |
+| 2     | Tăng tốc  | Medium     | Blue   | `+DynamicScore` | `0`             |
+| 3     | Thử thách | Hard       | Orange | `+DynamicScore` | `-DynamicScore` |
+| 4     | Về đích   | Medium     | Slate  | `+BaseScore`    | `-BaseScore`    |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+_Dynamic Score Formula:_
+$$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}{\text{TotalTime}} \right\rfloor$$
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Feature Checklist
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Core & State Management
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- [x] TypeScript data models (`types/game.ts`)
+- [x] Zustand state store with `BroadcastChannel` multi-tab sync (`store/useGameStore.ts`)
+- [x] Default HCM ideology questions dataset (`data/questions.json`)
+
+### Player Experience
+
+- [ ] Lobby screen & registration
+- [ ] Car color selection
+- [ ] Interactive 15-second timer
+- [ ] Quiz question card & answer inputs
+- [ ] Answer feedback & real-time scoring
+- [ ] Live racing track progress
+- [ ] Four-stage game progression
+- [ ] Final podium & recap explanations
+
+### Admin / Host Controls
+
+- [ ] JSON question import/export
+- [ ] Timer & stage configuration
+- [ ] Game controls (Start, Pause/Resume, Skip Question)
+- [ ] Force stage transitions
+- [ ] Live leaderboard & spectator view
+
+### Multiplayer / Sync
+
+- [ ] Real-time player state synchronization
+- [ ] Real-time car position sync across tabs
+
+## Project Structure
+
 
 ```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+hcm-quiz-racing
+├─ .oxlintrc.json
+├─ index.html
+├─ map.txt
+├─ package-lock.json
+├─ package.json
+├─ public
+│  ├─ favicon.svg
+│  └─ icons.svg
+├─ README.md
+├─ src
+│  ├─ App.css
+│  ├─ App.tsx
+│  ├─ assets
+│  │  ├─ hero.png
+│  │  ├─ react.svg
+│  │  └─ vite.svg
+│  ├─ components
+│  │  ├─ game
+│  │  ├─ summary
+│  │  │  └─ Podium.tsx
+│  │  └─ Timer.tsx
+│  ├─ data
+│  │  └─ questions.json
+│  ├─ index.css
+│  ├─ main.tsx
+│  ├─ pages
+│  ├─ store
+│  │  └─ useGameStore.ts
+│  └─ types
+│     └─ game.ts
+├─ tsconfig.app.json
+├─ tsconfig.json
+├─ tsconfig.node.json
+└─ vite.config.ts
 
 ```
