@@ -33,7 +33,7 @@ function Timer({ getTimeRemaining, onExpire }: TimerProps) {
     };
   }, [getTimeRemaining, onExpire]);
 
-  const seconds = Math.ceil(timeLeft / 1000);
+  const seconds = Math.ceil(timeLeft);
 
   return (
     <div className={`timer ${seconds <= 5 ? "timer-warning" : ""}`}>

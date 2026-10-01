@@ -5,7 +5,7 @@ import type { GameSession } from "../types/game";
 export function getTimeLeft(session: GameSession, now = Date.now()): number {
   const currentQuestion = session.questions[session.currentQuestionIndex];
 
-  const totalTime = currentQuestion?.durationSeconds ?? session.totalTime;
+  const totalTime = currentQuestion?.durationSeconds ?? session.totalTime ?? 20;
 
   if (session.questionStartedAt === null) {
     return totalTime;
