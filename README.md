@@ -36,18 +36,16 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 
 ### Player Experience
 
-- [ ] Lobby screen & registration
+- [x] Lobby screen & registration
 - [ ] Car color selection
-- [ ] Interactive 15-second timer
-- [ ] Quiz question card & answer inputs
-- [ ] Answer feedback & real-time scoring
+- [x] Quiz question card & answer inputs
+- [x] Answer feedback & real-time scoring
 - [ ] Live racing track progress
-- [ ] Four-stage game progression
-- [ ] Final podium & recap explanations
+- [x] Four-stage game progression
+- [x] Final podium & recap explanations
 
 ### Admin / Host Controls
 
-- [ ] JSON question import/export
 - [ ] Timer & stage configuration
 - [ ] Game controls (Start, Pause/Resume, Skip Question)
 - [ ] Force stage transitions
