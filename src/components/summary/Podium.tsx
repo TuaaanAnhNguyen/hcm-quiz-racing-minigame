@@ -1,0 +1,1 @@
+// src/components/summary/Podium.tsx

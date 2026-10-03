@@ -1,9 +1,12 @@
 // src/pages/GamePage.tsx
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import Timer from "../components/Timer";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
+import QuestionCard from "../components/game/QuestionCard";
+import QuestionResult from "../components/game/QuestionResult";
+import PlayerStatus from "../components/game/PlayerStatus";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Easy Start",
@@ -11,11 +14,6 @@ const STAGE_NAMES: Record<number, string> = {
   3: "Hard Race",
   4: "Final Sprint",
 };
-
-interface AnswerFeedback {
-  answerIndex: number;
-  correct: boolean;
-}
 
 function GamePage() {
   const status = useGameStore((state) => state.status);
@@ -25,28 +23,38 @@ function GamePage() {
     (state) => state.currentQuestionIndex,
   );
   const players = useGameStore((state) => state.players);
+  const answerHistory = useGameStore((state) => state.answerHistory);
+
   const getTimeRemaining = useGameStore((state) => state.getTimeRemaining);
   const submitAnswer = useGameStore((state) => state.submitAnswer);
+  const timeExpired = useGameStore((state) => state.timeExpired);
+  const nextQuestion = useGameStore((state) => state.nextQuestion);
+
   const continueStage = useGameStore((state) => state.continueStage);
   const resumeGame = useGameStore((state) => state.resumeGame);
   const pauseGame = useGameStore((state) => state.pauseGame);
-  const skipQuestion = useGameStore((state) => state.skipQuestion);
 
   const currentQuestion = questions[currentQuestionIndex];
-
   const player = players[0];
+
+  const currentAnswer =
+    player && currentQuestion
+      ? answerHistory.find(
+          (answer) =>
+            answer.playerId === player.id &&
+            answer.questionId === currentQuestion.id,
+        )
+      : undefined;
+
+  console.log("CURRENT ANSWER:", currentAnswer);
 
   const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
 
   const handleExpire = useCallback(() => {
     if (status === GameState.PLAYING) {
-      skipQuestion();
+      timeExpired();
     }
-  }, [skipQuestion, status]);
-
-  const [answerFeedback, setAnswerFeedback] = useState<AnswerFeedback | null>(
-    null,
-  );
+  }, [status, timeExpired]);
 
   const progressText = useMemo(() => {
     if (!currentQuestion) {
@@ -59,6 +67,9 @@ function GamePage() {
     return `Question ${questionNumber} / 2`;
   }, [currentQuestion, currentQuestionIndex, stage]);
 
+  /*
+   * Stage transition screen
+   */
   if (status === GameState.STAGE_TRANSITION) {
     const isFinished = stage === 4 && currentQuestionIndex >= questions.length;
 
@@ -96,6 +107,9 @@ function GamePage() {
     );
   }
 
+  /*
+   * No current question/player yet
+   */
   if (!currentQuestion || !player) {
     return (
       <main className="transition-page">
@@ -108,26 +122,52 @@ function GamePage() {
 
   const answered = player.hasAnswered;
 
-  const feedbackOverlay = answerFeedback && (
-    <div className="answer-feedback-overlay">
-      <div
-        className={`answer-feedback-card ${
-          answerFeedback.correct ? "feedback-correct" : "feedback-wrong"
-        }`}
-      >
-        <div className="feedback-icon">
-          {answerFeedback.correct ? "✓" : "✕"}
-        </div>
+  /*
+   * Result screen
+   *
+   * The question stays on screen, but the timer is gone because
+   * the reducer changes status from PLAYING to QUESTION_RESULT.
+   */
+  if (status === GameState.QUESTION_RESULT) {
+    return (
+      <main className="game-page">
+        <section className="game-card">
+          <header className="game-header">
+            <div>
+              <p className="eyebrow">Stage {stage}</p>
+              <h1>{STAGE_NAMES[stage] ?? `Stage ${stage}`}</h1>
+            </div>
+          </header>
 
-        <strong>{answerFeedback.correct ? "CORRECT!" : "WRONG!"}</strong>
-      </div>
-    </div>
-  );
+          <div className="progress-row">
+            <span>{progressText}</span>
 
+            <span>
+              Score: <strong>{player.score}</strong>
+            </span>
+          </div>
+
+          <QuestionResult
+            question={currentQuestion}
+            selectedIndex={currentAnswer?.selectedIndex ?? null}
+            correct={currentAnswer?.correct ?? false}
+            scoreEarned={currentAnswer?.scoreEarned ?? 0}
+            onNext={nextQuestion}
+          />
+
+          <footer className="game-footer">
+            <PlayerStatus player={player} />
+          </footer>
+        </section>
+      </main>
+    );
+  }
+
+  /*
+   * Normal playing / paused screen
+   */
   return (
     <main className="game-page">
-      {feedbackOverlay}
-
       <section className="game-card">
         <header className="game-header">
           <div>
@@ -146,69 +186,22 @@ function GamePage() {
           </span>
         </div>
 
-        <div className="question-card">
-          <h2>{currentQuestion.question}</h2>
-
-          <div className="answer-grid">
-            {currentQuestion.options.map((option, index) => (
-              <button
-                key={`${currentQuestion.id}-${index}`}
-                type="button"
-                className={[
-                  "answer-button",
-                  answered ? "answer-disabled" : "",
-                  answerFeedback?.answerIndex === index
-                    ? answerFeedback.correct
-                      ? "answer-correct"
-                      : "answer-wrong"
-                    : "",
-                ].join(" ")}
-                disabled={answered}
-                onClick={() => {
-                  const correct = index === currentQuestion.correctIndex;
-
-                  setAnswerFeedback({
-                    answerIndex: index,
-                    correct,
-                  });
-
-                  submitAnswer(player.id, index);
-
-                  window.setTimeout(() => {
-                    setAnswerFeedback(null);
-                  }, 700);
-                }}
-              >
-                <span className="answer-letter">
-                  {String.fromCharCode(65 + index)}
-                </span>
-
-                <span>{option}</span>
-              </button>
-            ))}
-          </div>
-
-          {answered && (
-            <p className="answered-message">
-              Answer submitted. Waiting for the question to finish...
-            </p>
-          )}
-        </div>
+        <QuestionCard
+          question={currentQuestion.question}
+          options={currentQuestion.options}
+          answered={answered}
+          selectedIndex={currentAnswer?.selectedIndex ?? null}
+          feedbackVisible={false}
+          feedbackCorrect={false}
+          onAnswer={(index) => {
+            if (!answered && status === GameState.PLAYING) {
+              submitAnswer(player.id, index);
+            }
+          }}
+        />
 
         <footer className="game-footer">
-          <div className="player-racer">
-            <span
-              className="mini-car"
-              style={{ backgroundColor: player.carColor }}
-            >
-              🏎️
-            </span>
-
-            <div>
-              <strong>{player.name}</strong>
-              <span>{player.correctAnswersCount} correct</span>
-            </div>
-          </div>
+          <PlayerStatus player={player} />
 
           {status === GameState.PLAYING ? (
             <button
