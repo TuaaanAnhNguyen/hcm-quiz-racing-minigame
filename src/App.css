@@ -827,6 +827,341 @@ button {
 }
 
 /* =========================================================
+   Spectator and host controls
+   ========================================================= */
+
+.game-header-controls,
+.spectator-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spectator-open,
+.spectator-return,
+.host-control-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.spectator-page {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.spectator-card {
+  max-width: 1100px;
+}
+
+.spectator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px 28px;
+  border-bottom: 1px solid #27272a;
+}
+
+.spectator-header h1 {
+  margin: 0;
+  color: #fafafa;
+  font-size: 24px;
+}
+
+.spectator-subtitle {
+  margin: 7px 0 0;
+  color: #a1a1aa;
+  font-size: 13px;
+}
+
+.spectator-header-actions .timer {
+  min-width: 76px;
+}
+
+.host-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #27272a;
+  padding: 18px 28px;
+  background: #141416;
+}
+
+.host-controls .eyebrow {
+  margin-bottom: 5px;
+}
+
+.host-controls strong {
+  color: #fafafa;
+  font-size: 14px;
+}
+
+.host-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.host-control-actions button {
+  min-height: 38px;
+}
+
+.spectator-content {
+  padding: 26px 28px 30px;
+}
+
+.spectator-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.spectator-section-heading .eyebrow {
+  margin-bottom: 5px;
+}
+
+.spectator-section-heading h2 {
+  margin: 0;
+  color: #fafafa;
+  font-size: 17px;
+}
+
+.track-stage-mark,
+.leaderboard-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a1a1aa;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.track-stage-mark-1 {
+  color: #4ade80;
+}
+
+.track-stage-mark-2 {
+  color: #60a5fa;
+}
+
+.track-stage-mark-3 {
+  color: #fb923c;
+}
+
+.track-stage-mark-4 {
+  color: #a1a1aa;
+}
+
+.spectator-track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 100px;
+  overflow: hidden;
+  border: 1px solid #3f3f46;
+  border-radius: 12px;
+  padding: 13px 15px;
+  background-color: #09090b;
+  isolation: isolate;
+}
+
+.spectator-track-1 {
+  background-image: radial-gradient(ellipse at center, transparent 38%, rgba(34, 197, 94, 0.13) 39%, rgba(34, 197, 94, 0.06) 57%, transparent 58%);
+}
+
+.spectator-track-2 {
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent 59px, rgba(59, 130, 246, 0.14) 60px, transparent 61px);
+}
+
+.spectator-track-3 {
+  background-image: linear-gradient(135deg, transparent 38%, rgba(249, 115, 22, 0.11) 39%, rgba(249, 115, 22, 0.04) 57%, transparent 58%);
+}
+
+.spectator-track-4 {
+  background-image: repeating-conic-gradient(rgba(244, 244, 245, 0.1) 0% 25%, transparent 0% 50%);
+  background-size: 18px 18px;
+}
+
+.track-lane {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 82px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.track-rank {
+  color: #71717a;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.track-lane-body {
+  position: relative;
+  height: 32px;
+}
+
+.track-lane-line {
+  position: absolute;
+  top: 15px;
+  right: 0;
+  left: 0;
+  border-top: 2px dashed #52525b;
+}
+
+.track-car {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  width: 34px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(250, 250, 250, 0.7);
+  border-radius: 8px;
+  font-size: 19px;
+  transform: translateX(-50%);
+  transition: left 0.45s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.track-finish-line {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  width: 9px;
+  height: 29px;
+  border: 1px solid #d4d4d8;
+  background: repeating-conic-gradient(#f4f4f5 0% 25%, #18181b 0% 50%) 50% / 8px 8px;
+}
+
+.track-points {
+  color: #d4d4d8;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.leaderboard-heading {
+  margin-top: 26px;
+}
+
+.leaderboard-count {
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.spectator-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spectator-player-row {
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 9px 13px;
+  background: #18181b;
+}
+
+.spectator-position {
+  width: 26px;
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.podium-position {
+  color: #facc15;
+}
+
+.spectator-player-car {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 19px;
+}
+
+.spectator-player-name {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.spectator-player-name strong {
+  overflow: hidden;
+  color: #fafafa;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spectator-player-name span {
+  color: #71717a;
+  font-size: 11px;
+}
+
+.spectator-player-score {
+  color: #fafafa;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.spectator-score-label {
+  color: #71717a;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.spectator-empty {
+  display: flex;
+  min-height: 100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #71717a;
+  font-size: 12px;
+}
+
+.spectator-empty-copy {
+  margin: 0;
+  border: 1px dashed #3f3f46;
+  border-radius: 8px;
+  padding: 18px;
+  color: #71717a;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* =========================================================
    Responsive
    ========================================================= */
 
@@ -886,5 +1221,39 @@ button {
 
   .game-footer {
     padding: 16px 20px;
+  }
+
+  .spectator-header,
+  .host-controls {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .spectator-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .host-control-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .host-control-actions button {
+    flex: 1 1 140px;
+  }
+
+  .spectator-content {
+    padding: 22px 16px;
+  }
+
+  .track-lane {
+    grid-template-columns: 24px minmax(0, 1fr) 67px;
+    gap: 7px;
+  }
+
+  .track-points {
+    font-size: 10px;
   }
 }

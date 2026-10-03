@@ -1,7 +1,9 @@
 // src/pages/GamePage.tsx
 
 import { useCallback, useMemo, useState } from "react";
+import { Eye } from "lucide-react";
 import Timer from "../components/Timer";
+import SpectatorView from "../components/game/SpectatorView";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
 
@@ -24,6 +26,8 @@ function GamePage() {
   const currentQuestionIndex = useGameStore(
     (state) => state.currentQuestionIndex,
   );
+  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
+  const pendingStage = useGameStore((state) => state.pendingStage);
   const players = useGameStore((state) => state.players);
   const getTimeRemaining = useGameStore((state) => state.getTimeRemaining);
   const submitAnswer = useGameStore((state) => state.submitAnswer);
@@ -31,6 +35,7 @@ function GamePage() {
   const resumeGame = useGameStore((state) => state.resumeGame);
   const pauseGame = useGameStore((state) => state.pauseGame);
   const skipQuestion = useGameStore((state) => state.skipQuestion);
+  const forceNextStage = useGameStore((state) => state.forceNextStage);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -47,6 +52,7 @@ function GamePage() {
   const [answerFeedback, setAnswerFeedback] = useState<AnswerFeedback | null>(
     null,
   );
+  const [spectatorMode, setSpectatorMode] = useState(false);
 
   const progressText = useMemo(() => {
     if (!currentQuestion) {
@@ -59,8 +65,27 @@ function GamePage() {
     return `Question ${questionNumber} / 2`;
   }, [currentQuestion, currentQuestionIndex, stage]);
 
+  if (spectatorMode && status !== GameState.STAGE_TRANSITION) {
+    return (
+      <SpectatorView
+        stage={stage}
+        currentQuestionIndex={currentQuestionIndex}
+        questionsPerStage={questionsPerStage}
+        players={players}
+        isPaused={status === GameState.PAUSED}
+        getTimeRemaining={timerGetter}
+        onExpire={handleExpire}
+        onReturnToPlayerView={() => setSpectatorMode(false)}
+        onPause={pauseGame}
+        onResume={resumeGame}
+        onSkipQuestion={skipQuestion}
+        onForceNextStage={forceNextStage}
+      />
+    );
+  }
+
   if (status === GameState.STAGE_TRANSITION) {
-    const isFinished = stage === 4 && currentQuestionIndex >= questions.length;
+    const isFinished = stage === 4 && pendingStage === null;
 
     return (
       <main className="transition-page">
@@ -135,7 +160,18 @@ function GamePage() {
             <h1>{STAGE_NAMES[stage] ?? `Stage ${stage}`}</h1>
           </div>
 
-          <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
+          <div className="game-header-controls">
+            <button
+              type="button"
+              className="secondary-button spectator-open"
+              onClick={() => setSpectatorMode(true)}
+              aria-label="Open spectator view and host controls"
+            >
+              <Eye size={16} aria-hidden="true" />
+              Live race
+            </button>
+            <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
+          </div>
         </header>
 
         <div className="progress-row">
