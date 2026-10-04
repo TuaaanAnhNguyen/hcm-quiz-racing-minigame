@@ -797,6 +797,368 @@ button {
   align-self: flex-start;
 }
 
+
+/* =========================================
+   Player question + live race layout
+   ========================================= */
+
+.player-game-card {
+  width: min(1180px, 100%);
+}
+
+.player-game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(235px, 3fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.player-question-column {
+  min-width: 0;
+}
+
+.player-race-column {
+  min-width: 0;
+}
+
+/* =========================================
+   Live race panel
+   ========================================= */
+
+.live-race-panel {
+  min-width: 0;
+  overflow: hidden;
+  color: #f4f4f5;
+  background: #171a1c;
+  border: 1px solid #353a3e;
+  border-radius: 14px;
+}
+
+.live-race-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 12px 10px;
+}
+
+.live-race-panel-header .eyebrow {
+  margin: 0 0 4px;
+  color: #a1a1aa;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.live-race-panel-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.live-race-player-count {
+  margin: 4px 0 0;
+  color: #a1a1aa;
+  font-size: 11px;
+}
+
+.live-race-view-controls,
+.live-race-zoom-controls>div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-race-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #d4d4d8;
+  background: #292e32;
+  border: 1px solid #41474c;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.live-race-icon-button:hover:not(:disabled) {
+  background: #3b4247;
+}
+
+.live-race-icon-button.is-active {
+  color: #fff;
+  background: #2563eb;
+  border-color: #3b82f6;
+}
+
+.live-race-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.live-race-zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 12px;
+  color: #a1a1aa;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-top: 1px solid #303538;
+}
+
+/* =========================================
+   Asphalt track
+   ========================================= */
+
+.live-race-viewport {
+  position: relative;
+  height: 430px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #555d62 #202427;
+  scrollbar-width: thin;
+  background: #252a2d;
+}
+
+.live-race-road {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding: 30px 7px;
+  overflow: hidden;
+  background-color: #383f43;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, #ffffff08 0, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, #00000012 0, transparent 50%);
+  box-sizing: border-box;
+}
+
+.live-race-road::before,
+.live-race-road::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 6px;
+  content: "";
+  background: repeating-linear-gradient(135deg,
+      #f8fafc 0 8px,
+      #ef4444 8px 16px);
+  pointer-events: none;
+}
+
+.live-race-road::before {
+  left: 0;
+}
+
+.live-race-road::after {
+  right: 0;
+}
+
+.live-race-lane {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  border-right: 1px dashed #d4d4d866;
+}
+
+.live-race-lane:last-of-type {
+  border-right: none;
+}
+
+.live-race-lane-me {
+  background: #ffffff08;
+}
+
+.live-race-lane-number {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  color: #d4d4d8;
+  font-size: 9px;
+  transform: translateX(-50%);
+}
+
+.live-race-car {
+  position: absolute;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  transform: translate(-50%, -50%);
+}
+
+.live-race-car img {
+  display: block;
+  width: clamp(18px, 4vw, 34px);
+  max-width: 90%;
+  height: auto;
+  object-fit: contain;
+  transform: rotate(180deg);
+  filter: drop-shadow(0 3px 2px #0008);
+}
+
+.live-race-car-me img {
+  filter: drop-shadow(0 0 4px #60a5fa) drop-shadow(0 3px 2px #0008);
+}
+
+.live-race-car-fallback {
+  font-size: 20px;
+  line-height: 1;
+  transform: rotate(180deg);
+}
+
+.live-race-you-label {
+  padding: 2px 4px;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.live-race-racer-label {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 100%;
+  overflow: hidden;
+  color: #d4d4d8;
+  font-size: 9px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.live-race-lane-me .live-race-racer-label {
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+/* Start, finish and checkpoints are decorative overlays. */
+
+.live-race-finish,
+.live-race-start {
+  position: absolute;
+  right: 7px;
+  left: 7px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  color: #fff;
+  background: #202427eF;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+.live-race-finish {
+  top: 0;
+}
+
+.live-race-start {
+  bottom: 0;
+}
+
+.live-race-checkerboard {
+  flex: 1;
+  height: 9px;
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #242424 25%, transparent 25%),
+    linear-gradient(-45deg, #242424 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #242424 75%),
+    linear-gradient(-45deg, transparent 75%, #242424 75%);
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+  background-size: 8px 8px;
+}
+
+.live-race-milestone {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.live-race-milestone span {
+  padding: 3px 5px;
+  color: #d4d4d8;
+  background: #252a2ddd;
+  border-radius: 3px 0 0 3px;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+}
+
+.milestone-one {
+  top: 36%;
+}
+
+.milestone-two {
+  top: 68%;
+}
+
+.live-race-panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  color: #a1a1aa;
+  font-size: 10px;
+  border-top: 1px solid #303538;
+}
+
+.live-race-status-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  background: #f59e0b;
+  border-radius: 50%;
+}
+
+/* =========================================
+   Responsive layout
+   ========================================= */
+
+@media (max-width: 760px) {
+  .player-game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .player-race-column {
+    width: 100%;
+  }
+
+  .live-race-viewport {
+    height: 350px;
+  }
+
+  .live-race-road {
+    min-width: 0;
+  }
+
+  .live-race-car img {
+    width: clamp(20px, 5vw, 32px);
+  }
+}
+
+
 @media (max-width: 640px) {
   .room-invite-panel {
     grid-template-columns: 1fr;

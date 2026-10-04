@@ -94,6 +94,7 @@ hcm-quiz-racing
 │  ├─ components
 │  │  ├─ game
 │  │  │  ├─ AnswerButton.tsx
+│  │  │  ├─ LiveRaceTracking.tsx
 │  │  │  ├─ PlayerStatus.tsx
 │  │  │  ├─ QuestionCard.tsx
 │  │  │  ├─ QuestionResult.tsx
@@ -121,6 +122,7 @@ hcm-quiz-racing
 │  │  ├─ AdminPage.tsx
 │  │  ├─ GamePage.tsx
 │  │  ├─ HostSetupPage.tsx
+│  │  ├─ LiveRacePanel.tsx
 │  │  ├─ LobbyPage.tsx
 │  │  └─ SummaryPage.tsx
 │  ├─ services
@@ -132,7 +134,7 @@ hcm-quiz-racing
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 ├─ tsconfig.node.json
-├─ vibecoding_specification.md
+├─ vercel.json
 └─ vite.config.ts
 
 ```
