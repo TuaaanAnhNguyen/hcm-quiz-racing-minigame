@@ -23,6 +23,11 @@ function LobbyPage() {
     setError("");
 
     registerPlayer(trimmedName, selectedCar);
+    const selectedCarOption = CAR_OPTIONS.find((car) => car.id === selectedCar);
+
+    console.log("[Lobby] selectedCar ID:", selectedCar);
+    console.log("[Lobby] selectedCar option:", selectedCarOption);
+    console.log("[Lobby] selectedCar image:", selectedCarOption?.image);
     startGame();
   };
 

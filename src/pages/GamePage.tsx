@@ -1,12 +1,15 @@
 // src/pages/GamePage.tsx
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Timer from "../components/Timer";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
 import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
+import { Eye } from "lucide-react";
+import SpectatorView from "../components/game/SpectatorView";
+import { CAR_OPTIONS } from "../data/cars";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Easy Start",
@@ -29,6 +32,9 @@ function GamePage() {
   const submitAnswer = useGameStore((state) => state.submitAnswer);
   const timeExpired = useGameStore((state) => state.timeExpired);
   const nextQuestion = useGameStore((state) => state.nextQuestion);
+  const skipQuestion = useGameStore((state) => state.skipQuestion);
+  const forceNextStage = useGameStore((state) => state.forceNextStage);
+  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
 
   const continueStage = useGameStore((state) => state.continueStage);
   const resumeGame = useGameStore((state) => state.resumeGame);
@@ -36,6 +42,18 @@ function GamePage() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const player = players[0];
+
+  console.log("[GamePage] player:", player);
+  console.log("[GamePage] player.carSprite:", player?.carSprite);
+
+  const gameCar = player
+    ? CAR_OPTIONS.find((car) => car.id === player.carSprite)
+    : undefined;
+
+  console.log("[GamePage] resolved car:", gameCar);
+  console.log("[GamePage] resolved car image:", gameCar?.image);
+
+  const [spectatorMode, setSpectatorMode] = useState(false);
 
   const currentAnswer =
     player && currentQuestion
@@ -45,8 +63,6 @@ function GamePage() {
             answer.questionId === currentQuestion.id,
         )
       : undefined;
-
-  console.log("CURRENT ANSWER:", currentAnswer);
 
   const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
 
@@ -66,6 +82,25 @@ function GamePage() {
 
     return `Question ${questionNumber} / 2`;
   }, [currentQuestion, currentQuestionIndex, stage]);
+
+  if (spectatorMode) {
+    return (
+      <SpectatorView
+        stage={stage}
+        currentQuestionIndex={currentQuestionIndex}
+        questionsPerStage={questionsPerStage}
+        players={players}
+        isPaused={status === GameState.PAUSED}
+        getTimeRemaining={getTimeRemaining}
+        onExpire={handleExpire}
+        onReturnToPlayerView={() => setSpectatorMode(false)}
+        onPause={pauseGame}
+        onResume={resumeGame}
+        onSkipQuestion={skipQuestion}
+        onForceNextStage={forceNextStage}
+      />
+    );
+  }
 
   /*
    * Stage transition screen
@@ -175,7 +210,18 @@ function GamePage() {
             <h1>{STAGE_NAMES[stage] ?? `Stage ${stage}`}</h1>
           </div>
 
-          <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
+          <div className="game-header-controls">
+            <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
+
+            <button
+              type="button"
+              className="secondary-button spectator-open"
+              onClick={() => setSpectatorMode(true)}
+            >
+              <Eye size={16} aria-hidden="true" />
+              Live race
+            </button>
+          </div>
         </header>
 
         <div className="progress-row">

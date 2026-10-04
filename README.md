@@ -40,9 +40,9 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 
 - [x] Lobby screen & registration
 - [x] Racing car selection
-- [-] Quiz question card & answer inputs
-- [-] Answer feedback & real-time scoring
-- [ ] Live racing track progress
+- [x] Quiz question card & answer inputs
+- [x] Answer feedback & real-time scoring
+- [-] Live racing track progress (Needs to be rework into vertical view due to vertical sprites + side-by-side with question view; 70% question, 30% live track)
 - [x] Four-stage game progression
 - [x] Final podium & recap explanations
 
@@ -95,7 +95,8 @@ hcm-quiz-racing
 │  │  │  ├─ AnswerButton.tsx
 │  │  │  ├─ PlayerStatus.tsx
 │  │  │  ├─ QuestionCard.tsx
-│  │  │  └─ QuestionResult.tsx
+│  │  │  ├─ QuestionResult.tsx
+│  │  │  └─ SpectatorView.tsx
 │  │  ├─ summary
 │  │  │  └─ Podium.tsx
 │  │  └─ Timer.tsx

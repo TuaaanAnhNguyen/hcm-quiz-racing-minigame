@@ -12,6 +12,10 @@ function PlayerStatus({ player }: PlayerStatusProps) {
     (candidate) => candidate.id === player.carSprite,
   );
 
+  console.log("[PlayerStatus] player.carSprite:", player.carSprite);
+  console.log("[PlayerStatus] resolved car:", car);
+  console.log("[PlayerStatus] resolved image:", car?.image);
+
   return (
     <div className="player-racer">
       <span className="mini-car">
