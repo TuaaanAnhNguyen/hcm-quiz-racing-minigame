@@ -9,9 +9,6 @@ import { GameState } from "../types/game";
 import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
-import { Eye } from "lucide-react";
-import SpectatorView from "../components/game/SpectatorView";
-import { CAR_OPTIONS } from "../data/cars";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Easy Start",
@@ -34,28 +31,12 @@ function GamePage() {
 
   const getTimeRemaining = useGameStore((state) => state.getTimeRemaining);
   const submitAnswer = useGameStore((state) => state.submitAnswer);
-  const timeExpired = useGameStore((state) => state.timeExpired);
-  const nextQuestion = useGameStore((state) => state.nextQuestion);
-  const skipQuestion = useGameStore((state) => state.skipQuestion);
-  const forceNextStage = useGameStore((state) => state.forceNextStage);
-  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
-
-  const continueStage = useGameStore((state) => state.continueStage);
-  const resumeGame = useGameStore((state) => state.resumeGame);
-  const pauseGame = useGameStore((state) => state.pauseGame);
+  const [playerId] = useState(() =>
+    window.localStorage.getItem("hcm-quiz-racing-player"),
+  );
 
   const currentQuestion = questions[currentQuestionIndex];
-  const player = players[0];
-
-  console.log("[GamePage] player:", player);
-  console.log("[GamePage] player.carSprite:", player?.carSprite);
-
-  const gameCar = player
-    ? CAR_OPTIONS.find((car) => car.id === player.carSprite)
-    : undefined;
-
-  console.log("[GamePage] resolved car:", gameCar);
-  console.log("[GamePage] resolved car image:", gameCar?.image);
+  const player = players.find((candidate) => candidate.id === playerId);
 
   const [spectatorMode, setSpectatorMode] = useState(false);
 
@@ -70,11 +51,7 @@ function GamePage() {
 
   const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
 
-  const handleExpire = useCallback(() => {
-    if (status === GameState.PLAYING) {
-      timeExpired();
-    }
-  }, [status, timeExpired]);
+  const handleExpire = useCallback(() => {}, []);
 
   const progressText = useMemo(() => {
     if (!currentQuestion) {
@@ -89,20 +66,21 @@ function GamePage() {
 
   if (spectatorMode) {
     return (
-      <SpectatorView
-        stage={stage}
-        currentQuestionIndex={currentQuestionIndex}
-        questionsPerStage={questionsPerStage}
-        players={players}
-        isPaused={status === GameState.PAUSED}
-        getTimeRemaining={getTimeRemaining}
-        onExpire={handleExpire}
-        onReturnToPlayerView={() => setSpectatorMode(false)}
-        onPause={pauseGame}
-        onResume={resumeGame}
-        onSkipQuestion={skipQuestion}
-        onForceNextStage={forceNextStage}
-      />
+      <main className="game-page spectator-page">
+        <section className="game-card spectator-card">
+          <SpectatorView
+            stage={stage}
+            currentQuestionIndex={currentQuestionIndex}
+            questionsPerStage={questionsPerStage}
+            players={players}
+            isPaused={status === GameState.PAUSED}
+            showTimer={status === GameState.PLAYING || status === GameState.PAUSED}
+            getTimeRemaining={getTimeRemaining}
+            onExpire={handleExpire}
+            onReturnToPlayerView={() => setSpectatorMode(false)}
+          />
+        </section>
+      </main>
     );
   }
 
@@ -134,13 +112,7 @@ function GamePage() {
             </div>
           )}
 
-          <button
-            type="button"
-            className="primary-button"
-            onClick={continueStage}
-          >
-            {isFinished ? "View Results" : "Continue"}
-          </button>
+          <p>Waiting for the race admin to continue.</p>
         </section>
       </main>
     );
@@ -191,7 +163,6 @@ function GamePage() {
             selectedIndex={currentAnswer?.selectedIndex ?? null}
             correct={currentAnswer?.correct ?? false}
             scoreEarned={currentAnswer?.scoreEarned ?? 0}
-            onNext={nextQuestion}
           />
 
           <footer className="game-footer">
@@ -253,23 +224,7 @@ function GamePage() {
         <footer className="game-footer">
           <PlayerStatus player={player} />
 
-          {status === GameState.PLAYING ? (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={pauseGame}
-            >
-              Pause
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={resumeGame}
-            >
-              Resume
-            </button>
-          )}
+          {status === GameState.PAUSED && <span>Race paused by the admin</span>}
         </footer>
       </section>
     </main>

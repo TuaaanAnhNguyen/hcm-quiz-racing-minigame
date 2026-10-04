@@ -10,7 +10,8 @@ Car sprites are made by [looneybits](https://looneybits.itch.io/2d-race-cars).
 
 - React + TypeScript
 - Vite
-- Zustand (State Management & BroadcastChannel Sync)
+- Zustand (Admin-authoritative game state)
+- Supabase Realtime (Player/admin messaging)
 - Tailwind CSS (v4)
 - Framer Motion
 - Lucide React
@@ -28,17 +29,32 @@ Car sprites are made by [looneybits](https://looneybits.itch.io/2d-race-cars).
 _Dynamic Score Formula:_
 $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}{\text{TotalTime}} \right\rfloor$$
 
+## Multiplayer Setup
+
+The admin opens `/admin`; racers open `/`. Keep one admin session active for each race. The admin browser owns the game state machine, timer decisions, answer evaluation, scoring, and stage progression. Player browsers send join and answer messages, then render the latest session and scores received through Supabase Realtime. Scores are not written to the database.
+
+Create a `.env` file with the Supabase project URL and publishable key:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+```
+
+Enable Supabase Realtime Broadcast for the project. Admin and player browsers must use the same project and room. The bundled `src/data/questions.json` is used if Supabase is not configured; without Supabase, `/admin` can preview the dashboard, but players cannot join or start a multiplayer race.
+
+The `/admin` path is a client-side role boundary, not authentication. Restrict access to that route and the Realtime channel before using the game with untrusted users; a production deployment should enforce admin identity with Supabase Auth and channel policies.
+
 ## Feature Checklist
 
 ### Core & State Management
 
 - [x] TypeScript data models (`types/game.ts`)
-- [x] Zustand state store with `BroadcastChannel` multi-tab sync (`store/useGameStore.ts`)
+- [x] Admin-authoritative Zustand state store (`store/useGameStore.ts`)
 - [x] Default HCM ideology questions dataset (`data/questions.json`)
 
 ### Player Experience
 
-- [x] Lobby screen & registration
+- [x] Player lobby and realtime registration
 - [x] Racing car selection
 - [x] Quiz question card & answer inputs
 - [x] Answer feedback & real-time scoring
@@ -49,14 +65,14 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 ### Admin / Host Controls
 
 - [ ] Timer & stage configuration
-- [ ] Game controls (Start, Pause/Resume, Skip Question)
-- [ ] Force stage transitions
-- [ ] Live leaderboard & spectator view
+- [x] Separate admin screen with Start, Pause/Resume, Skip, and Force Stage controls
+- [x] Admin-owned timer expiry, answer evaluation, and score calculation
+- [x] Live leaderboard and client-rendered score-based track positions
 
 ### Multiplayer / Sync
 
-- [ ] Real-time player state synchronization
-- [ ] Real-time car position sync across tabs
+- [x] Realtime player state synchronization through Supabase Broadcast
+- [x] Realtime car position updates from synchronized scores
 
 ## Project Structure
 

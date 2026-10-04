@@ -7,7 +7,7 @@ interface QuestionResultProps {
   selectedIndex: number | null;
   correct: boolean;
   scoreEarned: number;
-  onNext: () => void;
+  onNext?: () => void;
 }
 
 function QuestionResult({
@@ -50,9 +50,11 @@ function QuestionResult({
         </div>
       )}
 
-      <button type="button" onClick={onNext}>
-        NEXT QUESTION →
-      </button>
+      {onNext && (
+        <button type="button" onClick={onNext}>
+          NEXT QUESTION →
+        </button>
+      )}
     </div>
   );
 }

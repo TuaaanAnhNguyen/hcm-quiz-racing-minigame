@@ -5,6 +5,7 @@ import { fetchQuestions } from "../services/questionService";
 import { createGameSession, transition } from "../game/gameReducer";
 import { organizeQuestionsByStage } from "../game/questionSelector";
 import { getTimeLeft } from "../game/timer";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import {
   GameState,
   type GameSession,
@@ -12,14 +13,16 @@ import {
   type Question,
 } from "../types/game";
 
-const SYNC_CHANNEL_NAME = "hcm_quiz_racing_sync";
+const REALTIME_ROOM = "hcm-quiz-racing-room";
+const isAdminClient =
+  typeof window !== "undefined" && /^\/admin\/?$/.test(window.location.pathname);
 
-const broadcastChannel =
-  typeof window !== "undefined"
-    ? new BroadcastChannel(SYNC_CHANNEL_NAME)
-    : null;
+type ConnectionStatus = "connecting" | "connected" | "offline" | "error";
 
 interface GameStore extends GameSession {
+  isAdmin: boolean;
+  connectionStatus: ConnectionStatus;
+
   startGame: () => void;
 
   pauseGame: () => void;
@@ -31,7 +34,7 @@ interface GameStore extends GameSession {
   forceNextStage: () => void;
   continueStage: () => void;
   resetGame: () => void;
-  registerPlayer: (name: string, carSprite: string) => string;
+  registerPlayer: (name: string, carSprite: string, id: string) => string;
   loadCustomQuestions: (
     questions: Question[],
     questionsPerStage?: number,
@@ -47,12 +50,6 @@ const initialSession = createGameSession([], {
   questionsPerStage: 2,
 });
 
-/**
- * Extract only the GameSession data.
- *
- * Zustand's get() also contains all of the store's action functions.
- * Functions cannot be sent through BroadcastChannel.
- */
 function getSession(store: GameStore): GameSession {
   return {
     status: store.status,
@@ -71,20 +68,23 @@ function getSession(store: GameStore): GameSession {
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
-  /**
-   * Send only serializable GameSession data.
-   */
-  const sync = (session: GameSession) => {
-    broadcastChannel?.postMessage({
-      type: "STATE_UPDATE",
-      payload: session,
-    });
+  let realtimeReady = false;
+
+  const broadcast = (event: string, payload: unknown) => {
+    if (realtimeReady) {
+      void realtimeChannel?.send({ type: "broadcast", event, payload });
+    }
   };
 
-  /**
-   * Run a game event through A's game state machine.
-   */
+  const sync = (session: GameSession) => {
+    if (isAdminClient) {
+      broadcast("STATE_UPDATE", session);
+    }
+  };
+
   const applyEvent = (event: Parameters<typeof transition>[1]) => {
+    if (!isAdminClient) return;
+
     const current = getSession(get());
     const nextSession = transition(current, event);
 
@@ -94,17 +94,31 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
   };
 
-  broadcastChannel?.addEventListener(
-    "message",
-    (event: MessageEvent<{ type: string; payload: GameSession }>) => {
-      if (event.data?.type === "STATE_UPDATE" && event.data.payload?.status) {
-        set(event.data.payload);
-      }
-    },
-  );
+  const addPlayer = (player: Player) => {
+    const current = getSession(get());
+    if (
+      !isAdminClient ||
+      current.status === GameState.SUMMARY ||
+      current.players.some((candidate) => candidate.id === player.id)
+    ) {
+      return;
+    }
 
-  return {
+    const nextSession = { ...current, players: [...current.players, player] };
+    set(nextSession);
+    sync(nextSession);
+  };
+
+  const realtimeChannel = isSupabaseConfigured
+    ? supabase?.channel(REALTIME_ROOM, {
+        config: { broadcast: { self: false } },
+      })
+    : null;
+
+  const store = {
     ...initialSession,
+    isAdmin: isAdminClient,
+    connectionStatus: isSupabaseConfigured ? "connecting" : "offline",
 
     startGame: () => applyEvent({ type: "START_GAME" }),
 
@@ -112,12 +126,13 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     resumeGame: () => applyEvent({ type: "RESUME_GAME" }),
 
-    submitAnswer: (playerId, answerIndex) =>
-      applyEvent({
-        type: "SUBMIT_ANSWER",
-        playerId,
-        answerIndex,
-      }),
+    submitAnswer: (playerId: string, answerIndex: number) => {
+      if (isAdminClient) {
+        applyEvent({ type: "SUBMIT_ANSWER", playerId, answerIndex });
+      } else {
+        broadcast("PLAYER_ANSWER", { playerId, answerIndex });
+      }
+    },
 
     timeExpired: () => applyEvent({ type: "TIME_EXPIRED" }),
 
@@ -132,14 +147,13 @@ export const useGameStore = create<GameStore>((set, get) => {
     resetGame: () => applyEvent({ type: "RESET_GAME" }),
 
     loadQuestions: async () => {
+      if (!isAdminClient) return;
+
       try {
         const questions = await fetchQuestions();
-
         const nextSession = createGameSession(
           organizeQuestionsByStage(questions, 2),
-          {
-            questionsPerStage: 2,
-          },
+          { questionsPerStage: 2 },
         );
 
         set(nextSession);
@@ -149,13 +163,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       }
     },
 
-    registerPlayer: (name, carSprite) => {
-      const current = getSession(get());
-
-      const id = `player_${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2, 6)}`;
-
+    registerPlayer: (name: string, carSprite: string, id: string) => {
       const player: Player = {
         id,
         name,
@@ -165,49 +173,89 @@ export const useGameStore = create<GameStore>((set, get) => {
         correctAnswersCount: 0,
       };
 
-      const nextSession: GameSession = {
-        ...current,
-        players: [...current.players, player],
-      };
-
-      set(nextSession);
-      sync(nextSession);
+      if (isAdminClient) {
+        addPlayer(player);
+      } else {
+        broadcast("PLAYER_JOIN", player);
+      }
 
       return id;
     },
 
-    loadCustomQuestions: (questions, questionsPerStage = 2) => {
+    loadCustomQuestions: (questions: Question[], questionsPerStage = 2) => {
+      if (!isAdminClient) return;
+
       const nextSession = createGameSession(
         organizeQuestionsByStage(questions, questionsPerStage),
         { questionsPerStage },
       );
-
       set(nextSession);
       sync(nextSession);
     },
 
-    getTimeRemaining: (now) => getTimeLeft(getSession(get()), now),
+    getTimeRemaining: (now?: number) => getTimeLeft(getSession(get()), now),
 
-    setGameState: (state) => {
+    setGameState: (state: GameState) => {
+      if (!isAdminClient) return;
+
       if (state === GameState.LOBBY) {
-        return applyEvent({ type: "RESET_GAME" });
-      }
-
-      if (state === GameState.PLAYING) {
-        return applyEvent({
+        applyEvent({ type: "RESET_GAME" });
+      } else if (state === GameState.PLAYING) {
+        applyEvent({
           type: get().status === GameState.LOBBY ? "START_GAME" : "RESUME_GAME",
         });
+      } else if (state === GameState.PAUSED) {
+        applyEvent({ type: "PAUSE_GAME" });
+      } else if (state === GameState.STAGE_TRANSITION) {
+        applyEvent({ type: "FORCE_NEXT_STAGE" });
       }
-
-      if (state === GameState.PAUSED) {
-        return applyEvent({ type: "PAUSE_GAME" });
-      }
-
-      if (state === GameState.STAGE_TRANSITION) {
-        return applyEvent({ type: "FORCE_NEXT_STAGE" });
-      }
-
-      return applyEvent({ type: "FORCE_NEXT_STAGE" });
     },
-  };
+  } satisfies Omit<GameStore, keyof GameSession> & Partial<GameSession>;
+
+  realtimeChannel
+    ?.on("broadcast", { event: "STATE_UPDATE" }, ({ payload }) => {
+      if (!isAdminClient && payload?.status) {
+        set(payload as GameSession);
+      }
+    })
+    .on("broadcast", { event: "PLAYER_JOIN" }, ({ payload }) => {
+      if (isAdminClient && payload?.id && payload?.name && payload?.carSprite) {
+        addPlayer(payload as Player);
+      }
+    })
+    .on("broadcast", { event: "PLAYER_ANSWER" }, ({ payload }) => {
+      if (
+        isAdminClient &&
+        typeof payload?.playerId === "string" &&
+        Number.isInteger(payload?.answerIndex)
+      ) {
+        applyEvent({
+          type: "SUBMIT_ANSWER",
+          playerId: payload.playerId,
+          answerIndex: payload.answerIndex,
+        });
+      }
+    })
+    .on("broadcast", { event: "STATE_REQUEST" }, () => {
+      if (isAdminClient) sync(getSession(get()));
+    })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        realtimeReady = true;
+        set({ connectionStatus: "connected" });
+        if (isAdminClient) {
+          sync(getSession(get()));
+        } else {
+          broadcast("STATE_REQUEST", {});
+        }
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        realtimeReady = false;
+        set({ connectionStatus: "error" });
+      } else if (status === "CLOSED") {
+        realtimeReady = false;
+        set({ connectionStatus: "offline" });
+      }
+    });
+
+  return store as GameStore;
 });

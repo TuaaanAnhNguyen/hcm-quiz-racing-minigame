@@ -6,13 +6,20 @@ import { CAR_OPTIONS } from "../data/cars";
 
 function LobbyPage() {
   const registerPlayer = useGameStore((state) => state.registerPlayer);
-  const startGame = useGameStore((state) => state.startGame);
+  const connectionStatus = useGameStore((state) => state.connectionStatus);
+  const players = useGameStore((state) => state.players);
 
   const [name, setName] = useState("");
   const [selectedCar, setSelectedCar] = useState(CAR_OPTIONS[0].id);
   const [error, setError] = useState("");
+  const [joinRequested, setJoinRequested] = useState(false);
 
-  const handleStart = () => {
+  const existingPlayerId = window.localStorage.getItem("hcm-quiz-racing-player");
+  const joined = Boolean(
+    existingPlayerId && players.some((player) => player.id === existingPlayerId),
+  );
+
+  const handleJoin = () => {
     const trimmedName = name.trim();
 
     if (!trimmedName) {
@@ -21,14 +28,10 @@ function LobbyPage() {
     }
 
     setError("");
-
-    registerPlayer(trimmedName, selectedCar);
-    const selectedCarOption = CAR_OPTIONS.find((car) => car.id === selectedCar);
-
-    console.log("[Lobby] selectedCar ID:", selectedCar);
-    console.log("[Lobby] selectedCar option:", selectedCarOption);
-    console.log("[Lobby] selectedCar image:", selectedCarOption?.image);
-    startGame();
+    const playerId = existingPlayerId ?? crypto.randomUUID();
+    window.localStorage.setItem("hcm-quiz-racing-player", playerId);
+    registerPlayer(trimmedName, selectedCar, playerId);
+    setJoinRequested(true);
   };
 
   return (
@@ -82,7 +85,7 @@ function LobbyPage() {
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
-                    handleStart();
+                    handleJoin();
                   }
                 }}
                 placeholder="Enter your name..."
@@ -123,17 +126,35 @@ function LobbyPage() {
 
             {error && <p className="form-error">{error}</p>}
 
-            <button type="button" className="race-button" onClick={handleStart}>
-              <span>START RACE</span>
+            {joined || joinRequested ? (
+              <p className="answered-message">
+                {joined ? "You are in the race. Waiting for the admin to start." : "Requesting a race slot..."}
+              </p>
+            ) : (
+              <button
+                type="button"
+                className="race-button"
+                onClick={handleJoin}
+                disabled={connectionStatus !== "connected"}
+              >
+              <span>JOIN RACE</span>
               <span className="race-button-arrow">→</span>
-            </button>
+              </button>
+            )}
+            {connectionStatus !== "connected" && (
+              <p className="form-error">
+                {connectionStatus === "offline"
+                  ? "Multiplayer is unavailable until Supabase is configured."
+                  : "Connecting to the race..."}
+              </p>
+            )}
           </div>
         </section>
 
         <footer className="lobby-footer">
           <span>4 STAGES</span>
           <span>•</span>
-          <span>LOCAL RACE</span>
+          <span>LIVE RACE</span>
           <span>•</span>
           <span>QUIZ + RACING</span>
         </footer>

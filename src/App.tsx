@@ -10,14 +10,20 @@ import { GameState } from "./types/game";
 import LobbyPage from "./pages/LobbyPage";
 import GamePage from "./pages/GamePage";
 import SummaryPage from "./pages/SummaryPage";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   const status = useGameStore((state) => state.status);
   const loadQuestions = useGameStore((state) => state.loadQuestions);
+  const isAdmin = useGameStore((state) => state.isAdmin);
 
   useEffect(() => {
-    void loadQuestions();
-  }, [loadQuestions]);
+    if (isAdmin) void loadQuestions();
+  }, [isAdmin, loadQuestions]);
+
+  if (isAdmin) {
+    return <AdminPage />;
+  }
 
   const renderPage = () => {
     switch (status) {
