@@ -16,7 +16,7 @@ const questions: Question[] = [1, 2, 3, 4].map((stage) => ({
 const player = (id: string): Player => ({
   id,
   name: id,
-  carColor: "red",
+  carSprite: "pitstop_car_11",
   score: 0,
   hasAnswered: false,
   correctAnswersCount: 0,

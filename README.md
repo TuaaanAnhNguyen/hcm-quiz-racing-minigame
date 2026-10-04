@@ -29,21 +29,6 @@ Car sprites are made by [looneybits](https://looneybits.itch.io/2d-race-cars).
 _Dynamic Score Formula:_
 $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}{\text{TotalTime}} \right\rfloor$$
 
-## Multiplayer Setup
-
-The admin opens `/admin`; racers open `/`. Keep one admin session active for each race. The admin browser owns the game state machine, timer decisions, answer evaluation, scoring, and stage progression. Player browsers send join and answer messages, then render the latest session and scores received through Supabase Realtime. Scores are not written to the database.
-
-Create a `.env` file with the Supabase project URL and publishable key:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
-```
-
-Enable Supabase Realtime Broadcast for the project. Admin and player browsers must use the same project and room. The bundled `src/data/questions.json` is used if Supabase is not configured; without Supabase, `/admin` can preview the dashboard, but players cannot join or start a multiplayer race.
-
-The `/admin` path is a client-side role boundary, not authentication. Restrict access to that route and the Realtime channel before using the game with untrusted users; a production deployment should enforce admin identity with Supabase Auth and channel policies.
-
 ## Feature Checklist
 
 ### Core & State Management
@@ -129,10 +114,13 @@ hcm-quiz-racing
 │  │  └─ timer.ts
 │  ├─ index.css
 │  ├─ lib
+│  │  ├─ roomRouting.ts
 │  │  └─ supabase.ts
 │  ├─ main.tsx
 │  ├─ pages
+│  │  ├─ AdminPage.tsx
 │  │  ├─ GamePage.tsx
+│  │  ├─ HostSetupPage.tsx
 │  │  ├─ LobbyPage.tsx
 │  │  └─ SummaryPage.tsx
 │  ├─ services
@@ -144,6 +132,7 @@ hcm-quiz-racing
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 ├─ tsconfig.node.json
+├─ vibecoding_specification.md
 └─ vite.config.ts
 
 ```

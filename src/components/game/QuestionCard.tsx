@@ -7,8 +7,6 @@ interface QuestionCardProps {
   options: string[];
   answered: boolean;
   selectedIndex: number | null;
-  feedbackVisible: boolean;
-  feedbackCorrect: boolean;
   onAnswer: (index: number) => void;
 }
 
@@ -17,8 +15,6 @@ function QuestionCard({
   options,
   answered,
   selectedIndex,
-  feedbackVisible,
-  feedbackCorrect,
   onAnswer,
 }: QuestionCardProps) {
   return (

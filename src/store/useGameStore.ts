@@ -6,6 +6,7 @@ import { createGameSession, transition } from "../game/gameReducer";
 import { organizeQuestionsByStage } from "../game/questionSelector";
 import { getTimeLeft } from "../game/timer";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { getRoomRoute } from "../lib/roomRouting";
 import {
   GameState,
   type GameSession,
@@ -13,9 +14,10 @@ import {
   type Question,
 } from "../types/game";
 
-const REALTIME_ROOM = "hcm-quiz-racing-room";
-const isAdminClient =
-  typeof window !== "undefined" && /^\/admin\/?$/.test(window.location.pathname);
+const roomRoute = getRoomRoute();
+const roomCode = roomRoute.roomCode;
+const isAdminClient = roomRoute.isAdmin;
+const realtimeRoom = roomCode ? `hcm-quiz-racing-${roomCode}` : null;
 
 type ConnectionStatus = "connecting" | "connected" | "offline" | "error";
 
@@ -109,16 +111,18 @@ export const useGameStore = create<GameStore>((set, get) => {
     sync(nextSession);
   };
 
-  const realtimeChannel = isSupabaseConfigured
-    ? supabase?.channel(REALTIME_ROOM, {
-        config: { broadcast: { self: false } },
-      })
-    : null;
+  const realtimeChannel =
+    isSupabaseConfigured && realtimeRoom
+      ? supabase?.channel(realtimeRoom, {
+          config: { broadcast: { self: false } },
+        })
+      : null;
 
   const store = {
     ...initialSession,
     isAdmin: isAdminClient,
-    connectionStatus: isSupabaseConfigured ? "connecting" : "offline",
+    connectionStatus:
+      isSupabaseConfigured && realtimeRoom ? "connecting" : "offline",
 
     startGame: () => applyEvent({ type: "START_GAME" }),
 

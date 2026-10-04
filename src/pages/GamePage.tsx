@@ -9,6 +9,7 @@ import { GameState } from "../types/game";
 import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
+import { getRoomRoute } from "../lib/roomRouting";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Easy Start",
@@ -31,8 +32,13 @@ function GamePage() {
 
   const getTimeRemaining = useGameStore((state) => state.getTimeRemaining);
   const submitAnswer = useGameStore((state) => state.submitAnswer);
+
+  const roomCode = getRoomRoute().roomCode;
+
   const [playerId] = useState(() =>
-    window.localStorage.getItem("hcm-quiz-racing-player"),
+    roomCode
+      ? window.localStorage.getItem(`hcm-quiz-racing-player-${roomCode}`)
+      : null,
   );
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -74,7 +80,9 @@ function GamePage() {
             questionsPerStage={questionsPerStage}
             players={players}
             isPaused={status === GameState.PAUSED}
-            showTimer={status === GameState.PLAYING || status === GameState.PAUSED}
+            showTimer={
+              status === GameState.PLAYING || status === GameState.PAUSED
+            }
             getTimeRemaining={getTimeRemaining}
             onExpire={handleExpire}
             onReturnToPlayerView={() => setSpectatorMode(false)}
@@ -212,8 +220,6 @@ function GamePage() {
           options={currentQuestion.options}
           answered={answered}
           selectedIndex={currentAnswer?.selectedIndex ?? null}
-          feedbackVisible={false}
-          feedbackCorrect={false}
           onAnswer={(index) => {
             if (!answered && status === GameState.PLAYING) {
               submitAnswer(player.id, index);
