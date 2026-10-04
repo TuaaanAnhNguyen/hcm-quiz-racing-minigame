@@ -1,7 +1,7 @@
 // src/pages/AdminPage.tsx
 
 import { useCallback, useState } from "react";
-import { Flag, Play, RotateCcw, SkipForward, Pause, Copy } from "lucide-react";
+import { Eye, Flag, Play, RotateCcw, SkipForward, Pause, Copy } from "lucide-react";
 import SpectatorView from "../components/game/SpectatorView";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
@@ -29,6 +29,7 @@ function AdminPage() {
   const startGame = useGameStore((state) => state.startGame);
   const pauseGame = useGameStore((state) => state.pauseGame);
   const resumeGame = useGameStore((state) => state.resumeGame);
+  const revealQuestion = useGameStore((state) => state.revealQuestion);
   const timeExpired = useGameStore((state) => state.timeExpired);
   const nextQuestion = useGameStore((state) => state.nextQuestion);
   const skipQuestion = useGameStore((state) => state.skipQuestion);
@@ -202,6 +203,14 @@ function AdminPage() {
             )}
             {(status === GameState.PLAYING || status === GameState.PAUSED) && (
               <>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={revealQuestion}
+                >
+                  <Eye size={16} aria-hidden="true" />
+                  Công bố kết quả
+                </button>
                 <button
                   type="button"
                   className="secondary-button"
