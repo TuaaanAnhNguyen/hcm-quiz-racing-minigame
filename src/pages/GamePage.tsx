@@ -10,6 +10,7 @@ import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
 import { getRoomRoute } from "../lib/roomRouting";
+import LiveRacePanel from "./LiveRacePanel";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Easy Start",
@@ -186,7 +187,7 @@ function GamePage() {
    */
   return (
     <main className="game-page">
-      <section className="game-card">
+      <section className="game-card player-game-card">
         <header className="game-header">
           <div>
             <p className="eyebrow">Stage {stage}</p>
@@ -207,31 +208,41 @@ function GamePage() {
           </div>
         </header>
 
-        <div className="progress-row">
-          <span>{progressText}</span>
+        <div className="player-game-layout">
+          <div className="player-question-column">
+            <div className="progress-row">
+              <span>{progressText}</span>
 
-          <span>
-            Score: <strong>{player.score}</strong>
-          </span>
+              <span>
+                Score: <strong>{player.score}</strong>
+              </span>
+            </div>
+
+            <QuestionCard
+              question={currentQuestion.question}
+              options={currentQuestion.options}
+              answered={answered}
+              selectedIndex={currentAnswer?.selectedIndex ?? null}
+              onAnswer={(index) => {
+                if (!answered && status === GameState.PLAYING) {
+                  submitAnswer(player.id, index);
+                }
+              }}
+            />
+
+            <footer className="game-footer">
+              <PlayerStatus player={player} />
+
+              {status === GameState.PAUSED && (
+                <span>Race paused by the admin</span>
+              )}
+            </footer>
+          </div>
+
+          <aside className="player-race-column">
+            <LiveRacePanel players={players} playerId={player.id} />
+          </aside>
         </div>
-
-        <QuestionCard
-          question={currentQuestion.question}
-          options={currentQuestion.options}
-          answered={answered}
-          selectedIndex={currentAnswer?.selectedIndex ?? null}
-          onAnswer={(index) => {
-            if (!answered && status === GameState.PLAYING) {
-              submitAnswer(player.id, index);
-            }
-          }}
-        />
-
-        <footer className="game-footer">
-          <PlayerStatus player={player} />
-
-          {status === GameState.PAUSED && <span>Race paused by the admin</span>}
-        </footer>
       </section>
     </main>
   );
