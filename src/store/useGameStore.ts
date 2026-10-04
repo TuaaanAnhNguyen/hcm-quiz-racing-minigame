@@ -1,5 +1,7 @@
+// src/store/useGameStore.ts
+
 import { create } from "zustand";
-import initialQuestions from "../data/questions.json";
+import { fetchQuestions } from "../services/questionService";
 import { createGameSession, transition } from "../game/gameReducer";
 import { organizeQuestionsByStage } from "../game/questionSelector";
 import { getTimeLeft } from "../game/timer";
@@ -12,35 +14,6 @@ import {
 
 const SYNC_CHANNEL_NAME = "hcm_quiz_racing_sync";
 
-interface RawQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correct_index: number;
-  difficulty: "easy" | "medium" | "hard";
-  base_score: number;
-  duration_seconds?: number;
-  explanation?: string;
-}
-
-function normalizeQuestions(rawQuestions: RawQuestion[]): Question[] {
-  return rawQuestions.map((question) => ({
-    id: question.id,
-    question: question.question,
-    options: question.options,
-    correctIndex: question.correct_index,
-    difficulty: question.difficulty,
-    baseScore: question.base_score,
-    durationSeconds: question.duration_seconds ?? 20,
-    explanation: question.explanation,
-  }));
-}
-
-const defaultQuestions = organizeQuestionsByStage(
-  normalizeQuestions(initialQuestions as RawQuestion[]),
-  2,
-);
-
 const broadcastChannel =
   typeof window !== "undefined"
     ? new BroadcastChannel(SYNC_CHANNEL_NAME)
@@ -48,24 +21,29 @@ const broadcastChannel =
 
 interface GameStore extends GameSession {
   startGame: () => void;
+
   pauseGame: () => void;
   resumeGame: () => void;
   submitAnswer: (playerId: string, answerIndex: number) => void;
+  timeExpired: () => void;
   nextQuestion: () => void;
   skipQuestion: () => void;
   forceNextStage: () => void;
   continueStage: () => void;
   resetGame: () => void;
-  registerPlayer: (name: string, carColor: string) => string;
+  registerPlayer: (name: string, carSprite: string) => string;
   loadCustomQuestions: (
     questions: Question[],
     questionsPerStage?: number,
   ) => void;
   getTimeRemaining: (now?: number) => number;
+
+  loadQuestions: () => Promise<void>;
+
   setGameState: (state: GameState) => void;
 }
 
-const initialSession = createGameSession(defaultQuestions, {
+const initialSession = createGameSession([], {
   questionsPerStage: 2,
 });
 
@@ -141,6 +119,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         answerIndex,
       }),
 
+    timeExpired: () => applyEvent({ type: "TIME_EXPIRED" }),
+
     nextQuestion: () => applyEvent({ type: "NEXT_QUESTION" }),
 
     skipQuestion: () => applyEvent({ type: "SKIP_QUESTION" }),
@@ -151,7 +131,25 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     resetGame: () => applyEvent({ type: "RESET_GAME" }),
 
-    registerPlayer: (name, carColor) => {
+    loadQuestions: async () => {
+      try {
+        const questions = await fetchQuestions();
+
+        const nextSession = createGameSession(
+          organizeQuestionsByStage(questions, 2),
+          {
+            questionsPerStage: 2,
+          },
+        );
+
+        set(nextSession);
+        sync(nextSession);
+      } catch (error) {
+        console.error("Failed to load questions:", error);
+      }
+    },
+
+    registerPlayer: (name, carSprite) => {
       const current = getSession(get());
 
       const id = `player_${Date.now()}_${Math.random()
@@ -161,7 +159,7 @@ export const useGameStore = create<GameStore>((set, get) => {
       const player: Player = {
         id,
         name,
-        carColor,
+        carSprite,
         score: 0,
         hasAnswered: false,
         correctAnswersCount: 0,

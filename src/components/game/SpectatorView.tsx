@@ -1,3 +1,5 @@
+// src/components/game/SpectatorView.tsx
+
 import {
   ArrowLeft,
   Flag,
@@ -9,12 +11,13 @@ import {
 } from "lucide-react";
 import type { Player, StageNumber } from "../../types/game";
 import Timer from "../Timer";
+import { CAR_OPTIONS } from "../../data/cars";
 
 const STAGE_NAMES: Record<StageNumber, string> = {
   1: "Warm-up",
   2: "Acceleration",
   3: "Challenge",
-  4: "Final sprint",
+  4: "Final Sprint",
 };
 
 const TRACK_NAMES: Record<StageNumber, string> = {
@@ -59,9 +62,11 @@ function SpectatorView({
       second.correctAnswersCount - first.correctAnswersCount ||
       first.name.localeCompare(second.name),
   );
+
   const lowestScore = standings.at(-1)?.score ?? 0;
   const highestScore = standings[0]?.score ?? 0;
-  const stageQuestion = ((currentQuestionIndex % questionsPerStage) + 1);
+
+  const stageQuestion = (currentQuestionIndex % questionsPerStage) + 1;
 
   return (
     <main className="game-page spectator-page">
@@ -69,13 +74,21 @@ function SpectatorView({
         <header className="spectator-header">
           <div>
             <p className="eyebrow">LIVE RACE · SPECTATOR</p>
-            <h1>Stage {stage}: {STAGE_NAMES[stage]}</h1>
+
+            <h1>
+              Stage {stage}: {STAGE_NAMES[stage]}
+            </h1>
+
             <p className="spectator-subtitle">
-              Question {stageQuestion} of {questionsPerStage} · {standings.length} {standings.length === 1 ? "team" : "teams"} racing
+              Question {stageQuestion} of {questionsPerStage} ·{" "}
+              {standings.length} {standings.length === 1 ? "racer" : "racers"}{" "}
+              racing
             </p>
           </div>
+
           <div className="spectator-header-actions">
             <Timer getTimeRemaining={getTimeRemaining} onExpire={onExpire} />
+
             <button
               type="button"
               className="secondary-button spectator-return"
@@ -90,22 +103,45 @@ function SpectatorView({
         <section className="host-controls" aria-label="Host controls">
           <div>
             <p className="eyebrow">RACE CONTROL</p>
+
             <strong>{isPaused ? "Race paused" : "Race in progress"}</strong>
           </div>
+
           <div className="host-control-actions">
             {isPaused ? (
-              <button type="button" className="primary-button" onClick={onResume}>
-                <Play size={16} aria-hidden="true" /> Resume
+              <button
+                type="button"
+                className="primary-button"
+                onClick={onResume}
+              >
+                <Play size={16} aria-hidden="true" />
+                Resume
               </button>
             ) : (
-              <button type="button" className="secondary-button" onClick={onPause}>
-                <Pause size={16} aria-hidden="true" /> Pause
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={onPause}
+              >
+                <Pause size={16} aria-hidden="true" />
+                Pause
               </button>
             )}
-            <button type="button" className="secondary-button" onClick={onSkipQuestion}>
-              <SkipForward size={16} aria-hidden="true" /> Skip question
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={onSkipQuestion}
+            >
+              <SkipForward size={16} aria-hidden="true" />
+              Skip question
             </button>
-            <button type="button" className="primary-button host-force-button" onClick={onForceNextStage}>
+
+            <button
+              type="button"
+              className="primary-button host-force-button"
+              onClick={onForceNextStage}
+            >
               <Flag size={16} aria-hidden="true" />
               {stage === 4 ? "Finish race" : "Force next stage"}
             </button>
@@ -118,6 +154,7 @@ function SpectatorView({
               <p className="eyebrow">TRACK VIEW</p>
               <h2>{TRACK_NAMES[stage]}</h2>
             </div>
+
             <span className={`track-stage-mark track-stage-mark-${stage}`}>
               STAGE 0{stage}
             </span>
@@ -131,26 +168,45 @@ function SpectatorView({
               </div>
             ) : (
               standings.map((player, index) => {
+                const car = CAR_OPTIONS.find(
+                  (candidate) => candidate.id === player.carSprite,
+                );
+
+                console.log("[Spectator] player:", player.name);
+                console.log("[Spectator] player.carSprite:", player.carSprite);
+                console.log("[Spectator] resolved car:", car);
+                console.log("[Spectator] resolved image:", car?.image);
+
                 const scoreRange = highestScore - lowestScore;
-                const progress = scoreRange === 0
-                  ? 18
-                  : 12 + ((player.score - lowestScore) / scoreRange) * 72;
+
+                const progress =
+                  scoreRange === 0
+                    ? 18
+                    : 12 + ((player.score - lowestScore) / scoreRange) * 72;
 
                 return (
                   <div className="track-lane" key={player.id}>
-                    <span className="track-rank">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="track-rank">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
                     <div className="track-lane-body">
                       <div className="track-lane-line" />
+
                       <span
                         className="track-car"
-                        style={{ left: `${progress}%`, backgroundColor: player.carColor }}
+                        style={{ left: `${progress}%` }}
                         title={`${player.name}: ${player.score} points`}
                       >
-                        🏎️
+                        {car && <img src={car.image} alt={car.name} />}
                       </span>
+
                       <span className="track-finish-line" aria-hidden="true" />
                     </div>
-                    <span className="track-points">{player.score.toLocaleString()} pts</span>
+
+                    <span className="track-points">
+                      {player.score.toLocaleString()} pts
+                    </span>
                   </div>
                 );
               })
@@ -162,8 +218,10 @@ function SpectatorView({
               <p className="eyebrow">LIVE STANDINGS</p>
               <h2>Leaderboard</h2>
             </div>
+
             <span className="leaderboard-count">
-              <Trophy size={15} aria-hidden="true" /> {standings.length} racers
+              <Trophy size={15} aria-hidden="true" />
+              {standings.length} racers
             </span>
           </div>
 
@@ -171,23 +229,39 @@ function SpectatorView({
             <ol className="spectator-leaderboard">
               {standings.map((player, index) => (
                 <li className="spectator-player-row" key={player.id}>
-                  <span className={`spectator-position ${index < 3 ? "podium-position" : ""}`}>
+                  <span
+                    className={`spectator-position ${
+                      index < 3 ? "podium-position" : ""
+                    }`}
+                  >
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="spectator-player-car" style={{ backgroundColor: player.carColor }}>
-                    🏎️
+
+                  <span className="spectator-player-car">
+                    <img src={player.carSprite} alt="" />
                   </span>
+
                   <span className="spectator-player-name">
                     <strong>{player.name}</strong>
-                    <span>{player.correctAnswersCount} correct · {player.hasAnswered ? "Answered" : "Racing"}</span>
+
+                    <span>
+                      {player.correctAnswersCount} correct ·{" "}
+                      {player.hasAnswered ? "Answered" : "Racing"}
+                    </span>
                   </span>
-                  <strong className="spectator-player-score">{player.score.toLocaleString()}</strong>
+
+                  <strong className="spectator-player-score">
+                    {player.score.toLocaleString()}
+                  </strong>
+
                   <span className="spectator-score-label">PTS</span>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="spectator-empty-copy">Players will appear here when they join the race.</p>
+            <p className="spectator-empty-copy">
+              Players will appear here when they join the race.
+            </p>
           )}
         </section>
       </section>

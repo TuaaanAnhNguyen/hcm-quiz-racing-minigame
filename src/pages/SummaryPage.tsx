@@ -28,7 +28,7 @@ function SummaryPage() {
 
               <span
                 className="mini-car"
-                style={{ backgroundColor: player.carColor }}
+                style={{ backgroundColor: player.carSprite }}
               >
                 🏎️
               </span>
