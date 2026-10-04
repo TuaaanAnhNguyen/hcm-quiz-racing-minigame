@@ -1,5 +1,6 @@
 // src/App.tsx
 
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import "./App.css";
 
@@ -12,6 +13,11 @@ import SummaryPage from "./pages/SummaryPage";
 
 function App() {
   const status = useGameStore((state) => state.status);
+  const loadQuestions = useGameStore((state) => state.loadQuestions);
+
+  useEffect(() => {
+    void loadQuestions();
+  }, [loadQuestions]);
 
   const renderPage = () => {
     switch (status) {
@@ -20,6 +26,7 @@ function App() {
 
       case GameState.PLAYING:
       case GameState.PAUSED:
+      case GameState.QUESTION_RESULT:
       case GameState.STAGE_TRANSITION:
         return <GamePage />;
 

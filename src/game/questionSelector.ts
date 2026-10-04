@@ -1,3 +1,5 @@
+// src/game/questionSelector.ts
+
 import type { Question, StageNumber } from "../types/game";
 import { STAGE_DIFFICULTY } from "./stages";
 

@@ -2,36 +2,14 @@
 
 import { useState } from "react";
 import { useGameStore } from "../store/useGameStore";
-
-const CAR_COLORS = [
-  {
-    name: "Blue",
-    value: "#3b82f6",
-    dark: "#1d4ed8",
-  },
-  {
-    name: "Green",
-    value: "#22c55e",
-    dark: "#15803d",
-  },
-  {
-    name: "Red",
-    value: "#ef4444",
-    dark: "#b91c1c",
-  },
-  {
-    name: "Yellow",
-    value: "#facc15",
-    dark: "#a16207",
-  },
-];
+import { CAR_OPTIONS } from "../data/cars";
 
 function LobbyPage() {
   const registerPlayer = useGameStore((state) => state.registerPlayer);
   const startGame = useGameStore((state) => state.startGame);
 
   const [name, setName] = useState("");
-  const [selectedColor, setSelectedColor] = useState(CAR_COLORS[0].value);
+  const [selectedCar, setSelectedCar] = useState(CAR_OPTIONS[0].id);
   const [error, setError] = useState("");
 
   const handleStart = () => {
@@ -44,7 +22,12 @@ function LobbyPage() {
 
     setError("");
 
-    registerPlayer(trimmedName, selectedColor);
+    registerPlayer(trimmedName, selectedCar);
+    const selectedCarOption = CAR_OPTIONS.find((car) => car.id === selectedCar);
+
+    console.log("[Lobby] selectedCar ID:", selectedCar);
+    console.log("[Lobby] selectedCar option:", selectedCarOption);
+    console.log("[Lobby] selectedCar image:", selectedCarOption?.image);
     startGame();
   };
 
@@ -112,37 +95,26 @@ function LobbyPage() {
               <span className="setup-label">CHOOSE YOUR CAR</span>
 
               <div className="car-grid">
-                {CAR_COLORS.map((car) => {
-                  const selected = selectedColor === car.value;
+                {CAR_OPTIONS.map((car) => {
+                  const selected = selectedCar === car.id;
 
                   return (
                     <button
-                      key={car.value}
+                      key={car.id}
                       type="button"
                       className={`car-choice ${
                         selected ? "car-choice-selected" : ""
                       }`}
-                      onClick={() => setSelectedColor(car.value)}
+                      onClick={() => setSelectedCar(car.id)}
                       aria-pressed={selected}
                     >
-                      <div
-                        className="car-preview"
-                        style={{
-                          backgroundColor: car.value,
-                          borderColor: selected ? car.dark : "transparent",
-                        }}
-                      >
-                        🏎️
+                      <div className="car-preview">
+                        <img src={car.image} alt={car.name} />
                       </div>
 
-                      <span>{car.name}</span>
+                      <span className="car-name">{car.name}</span>
 
-                      {selected && (
-                        <div
-                          className="car-selected-dot"
-                          style={{ backgroundColor: car.value }}
-                        />
-                      )}
+                      {selected && <div className="car-selected-dot" />}
                     </button>
                   );
                 })}

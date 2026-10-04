@@ -24,7 +24,7 @@ export interface Question {
 export interface Player {
   id: string;
   name: string;
-  carColor: string;
+  carSprite: string;
   score: number;
   hasAnswered: boolean;
   correctAnswersCount: number;
@@ -35,6 +35,7 @@ export const GameState = {
   LOBBY: "lobby",
   PLAYING: "playing",
   PAUSED: "paused",
+  QUESTION_RESULT: "question_result",
   STAGE_TRANSITION: "stage_transition",
   SUMMARY: "summary",
 } as const;
@@ -71,6 +72,7 @@ export type GameEvent =
   | { type: "RESUME_GAME" }
   | { type: "SUBMIT_ANSWER"; playerId: string; answerIndex: number }
   | { type: "TIME_EXPIRED" }
+  | { type: "REVEAL_QUESTION" }
   | { type: "NEXT_QUESTION" }
   | { type: "SKIP_QUESTION" }
   | { type: "FORCE_NEXT_STAGE" }
