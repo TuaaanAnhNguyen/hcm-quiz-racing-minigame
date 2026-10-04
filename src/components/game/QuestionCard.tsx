@@ -34,7 +34,7 @@ function QuestionCard({
         ))}
       </div>
 
-      {answered && <p className="answered-message">Answer submitted.</p>}
+      {answered && <p className="answered-message">Đã gửi câu trả lời.</p>}
     </div>
   );
 }

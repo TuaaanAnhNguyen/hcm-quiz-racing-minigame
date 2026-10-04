@@ -42,8 +42,8 @@ function Timer({ getTimeRemaining, onExpire }: TimerProps) {
 
   return (
     <div className={`timer ${seconds <= 5 ? "timer-warning" : ""}`}>
-      <span className="timer-label">Time</span>
-      <strong>{seconds}s</strong>
+      <span className="timer-label">Thời gian</span>
+      <strong>{seconds} giây</strong>
     </div>
   );
 }

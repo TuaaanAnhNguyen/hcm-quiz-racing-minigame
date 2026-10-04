@@ -21,20 +21,20 @@ function QuestionResult({
     <div className="question-result">
       <div className={correct ? "result-correct" : "result-wrong"}>
         {selectedIndex === null
-          ? "TIME'S UP"
+          ? "HẾT GIỜ"
           : correct
-            ? "CORRECT!"
-            : "INCORRECT"}
+            ? "CHÍNH XÁC!"
+            : "CHƯA CHÍNH XÁC"}
       </div>
 
       {selectedIndex !== null && (
         <p>
-          Your answer: <strong>{question.options[selectedIndex]}</strong>
+          Bạn đã chọn: <strong>{question.options[selectedIndex]}</strong>
         </p>
       )}
 
       <p>
-        Correct answer:{" "}
+        Đáp án đúng:{" "}
         <strong>{question.options[question.correctIndex]}</strong>
       </p>
 
@@ -45,14 +45,14 @@ function QuestionResult({
 
       {question.explanation && (
         <div className="result-explanation">
-          <strong>Explanation</strong>
+          <strong>Giải thích</strong>
           <p>{question.explanation}</p>
         </div>
       )}
 
       {onNext && (
         <button type="button" onClick={onNext}>
-          NEXT QUESTION →
+          CÂU TIẾP THEO →
         </button>
       )}
     </div>

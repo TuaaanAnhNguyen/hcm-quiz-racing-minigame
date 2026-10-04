@@ -36,7 +36,7 @@ function LobbyPage() {
     const code = roomCodeInput.trim().toUpperCase();
 
     if (!/^[A-Z0-9]{6}$/.test(code)) {
-      setError("Please enter a valid 6-character room code.");
+      setError("Vui lòng nhập mã phòng gồm 6 ký tự hợp lệ.");
       return;
     }
 
@@ -49,12 +49,12 @@ function LobbyPage() {
     if (!roomCode) return;
 
     if (!trimmedName) {
-      setError("Please enter your player name.");
+      setError("Vui lòng nhập tên người chơi.");
       return;
     }
 
     if (connectionStatus !== "connected") {
-      setError("Please wait until you are connected to the room.");
+      setError("Vui lòng chờ kết nối với phòng trước khi tham gia.");
       return;
     }
 
@@ -88,18 +88,18 @@ function LobbyPage() {
         <section className="lobby-content">
           <div className="lobby-intro">
             <p className="section-label">
-              {roomCode ? "READY TO RACE?" : "JOIN THE RACE"}
+              {roomCode ? "SẴN SÀNG ĐUA CHƯA?" : "THAM GIA CUỘC ĐUA"}
             </p>
 
             <h2>
-              Test your knowledge.
+              Thử sức kiến thức.
               <br />
-              <span>Race to the finish.</span>
+              <span>Tăng tốc về đích.</span>
             </h2>
 
             <p className="intro-text">
-              Answer questions correctly and race through all four stages of Ho
-              Chi Minh City trivia.
+              Trả lời chính xác để chinh phục cả bốn chặng đua kiến thức về
+              Thành phố Hồ Chí Minh.
             </p>
           </div>
 
@@ -107,7 +107,7 @@ function LobbyPage() {
             {!roomCode ? (
               <>
                 <div className="setup-section">
-                  <label htmlFor="room-code">ROOM CODE</label>
+                  <label htmlFor="room-code">MÃ PHÒNG</label>
 
                   <input
                     id="room-code"
@@ -125,7 +125,7 @@ function LobbyPage() {
                     onKeyDown={(event) => {
                       if (event.key === "Enter") handleRoomSubmit();
                     }}
-                    placeholder="Enter 6-character code..."
+                    placeholder="Nhập mã gồm 6 ký tự..."
                     maxLength={6}
                     autoComplete="off"
                   />
@@ -138,16 +138,16 @@ function LobbyPage() {
                   className="race-button"
                   onClick={handleRoomSubmit}
                 >
-                  <span>JOIN ROOM</span>
+                  <span>VÀO PHÒNG</span>
                   <span className="race-button-arrow">→</span>
                 </button>
 
-                <p className="intro-text">Ask your host for the room code.</p>
+                <p className="intro-text">Hãy hỏi quản trò để nhận mã phòng.</p>
               </>
             ) : (
               <>
                 <div className="setup-section">
-                  <label htmlFor="player-name">PLAYER NAME</label>
+                  <label htmlFor="player-name">TÊN NGƯỜI CHƠI</label>
 
                   <input
                     id="player-name"
@@ -160,14 +160,14 @@ function LobbyPage() {
                     onKeyDown={(event) => {
                       if (event.key === "Enter") handleJoin();
                     }}
-                    placeholder="Enter your name..."
+                    placeholder="Nhập tên của bạn..."
                     maxLength={20}
                     autoComplete="off"
                   />
                 </div>
 
                 <div className="setup-section">
-                  <span className="setup-label">CHOOSE YOUR CAR</span>
+                  <span className="setup-label">CHỌN XE ĐUA</span>
 
                   <div className="car-grid">
                     {CAR_OPTIONS.map((car) => {
@@ -201,8 +201,8 @@ function LobbyPage() {
                 {joined || joinRequested ? (
                   <p className="answered-message">
                     {joined
-                      ? "You are in the race. Waiting for the admin to start."
-                      : "Requesting a race slot..."}
+                      ? "Bạn đã vào phòng. Đang chờ quản trò bắt đầu."
+                      : "Đang gửi yêu cầu tham gia..."}
                   </p>
                 ) : (
                   <button
@@ -211,7 +211,7 @@ function LobbyPage() {
                     onClick={handleJoin}
                     disabled={connectionStatus !== "connected"}
                   >
-                    <span>JOIN RACE</span>
+                    <span>THAM GIA ĐUA</span>
                     <span className="race-button-arrow">→</span>
                   </button>
                 )}
@@ -219,15 +219,15 @@ function LobbyPage() {
                 {connectionStatus !== "connected" && (
                   <p className="form-error">
                     {connectionStatus === "offline"
-                      ? "Multiplayer is unavailable. Check the Supabase configuration."
+                      ? "Không thể kết nối nhiều người chơi. Hãy kiểm tra cấu hình Supabase."
                       : connectionStatus === "error"
-                        ? "Could not connect to this room. Please try again."
-                        : "Connecting to the race..."}
+                        ? "Không thể kết nối phòng. Vui lòng thử lại."
+                        : "Đang kết nối phòng..."}
                   </p>
                 )}
 
                 <p className="intro-text">
-                  Room code: <strong>{roomCode}</strong>
+                  Mã phòng: <strong>{roomCode}</strong>
                 </p>
               </>
             )}
@@ -235,11 +235,11 @@ function LobbyPage() {
         </section>
 
         <footer className="lobby-footer">
-          <span>4 STAGES</span>
+          <span>4 CHẶNG</span>
           <span>•</span>
-          <span>LIVE RACE</span>
+          <span>ĐUA TRỰC TIẾP</span>
           <span>•</span>
-          <span>QUIZ + RACING</span>
+          <span>KIẾN THỨC + ĐUA XE</span>
         </footer>
       </section>
     </main>
