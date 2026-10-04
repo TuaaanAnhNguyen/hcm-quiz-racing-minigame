@@ -10,7 +10,8 @@ Car sprites are made by [looneybits](https://looneybits.itch.io/2d-race-cars).
 
 - React + TypeScript
 - Vite
-- Zustand (State Management & BroadcastChannel Sync)
+- Zustand (Admin-authoritative game state)
+- Supabase Realtime (Player/admin messaging)
 - Tailwind CSS (v4)
 - Framer Motion
 - Lucide React
@@ -33,12 +34,12 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 ### Core & State Management
 
 - [x] TypeScript data models (`types/game.ts`)
-- [x] Zustand state store with `BroadcastChannel` multi-tab sync (`store/useGameStore.ts`)
+- [x] Admin-authoritative Zustand state store (`store/useGameStore.ts`)
 - [x] Default HCM ideology questions dataset (`data/questions.json`)
 
 ### Player Experience
 
-- [x] Lobby screen & registration
+- [x] Player lobby and realtime registration
 - [x] Racing car selection
 - [x] Quiz question card & answer inputs
 - [x] Answer feedback & real-time scoring
@@ -49,14 +50,14 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 ### Admin / Host Controls
 
 - [ ] Timer & stage configuration
-- [ ] Game controls (Start, Pause/Resume, Skip Question)
-- [ ] Force stage transitions
-- [ ] Live leaderboard & spectator view
+- [x] Separate admin screen with Start, Pause/Resume, Skip, and Force Stage controls
+- [x] Admin-owned timer expiry, answer evaluation, and score calculation
+- [x] Live leaderboard and client-rendered score-based track positions
 
 ### Multiplayer / Sync
 
-- [ ] Real-time player state synchronization
-- [ ] Real-time car position sync across tabs
+- [x] Realtime player state synchronization through Supabase Broadcast
+- [x] Realtime car position updates from synchronized scores
 
 ## Project Structure
 
@@ -113,10 +114,13 @@ hcm-quiz-racing
 │  │  └─ timer.ts
 │  ├─ index.css
 │  ├─ lib
+│  │  ├─ roomRouting.ts
 │  │  └─ supabase.ts
 │  ├─ main.tsx
 │  ├─ pages
+│  │  ├─ AdminPage.tsx
 │  │  ├─ GamePage.tsx
+│  │  ├─ HostSetupPage.tsx
 │  │  ├─ LobbyPage.tsx
 │  │  └─ SummaryPage.tsx
 │  ├─ services
@@ -128,6 +132,7 @@ hcm-quiz-racing
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 ├─ tsconfig.node.json
+├─ vibecoding_specification.md
 └─ vite.config.ts
 
 ```

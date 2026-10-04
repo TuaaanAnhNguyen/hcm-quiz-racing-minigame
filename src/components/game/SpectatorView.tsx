@@ -1,14 +1,6 @@
 // src/components/game/SpectatorView.tsx
 
-import {
-  ArrowLeft,
-  Flag,
-  Pause,
-  Play,
-  SkipForward,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Trophy, Users } from "lucide-react";
 import type { Player, StageNumber } from "../../types/game";
 import Timer from "../Timer";
 import { CAR_OPTIONS } from "../../data/cars";
@@ -33,13 +25,10 @@ interface SpectatorViewProps {
   questionsPerStage: number;
   players: Player[];
   isPaused: boolean;
+  showTimer: boolean;
   getTimeRemaining: () => number;
   onExpire: () => void;
-  onReturnToPlayerView: () => void;
-  onPause: () => void;
-  onResume: () => void;
-  onSkipQuestion: () => void;
-  onForceNextStage: () => void;
+  onReturnToPlayerView?: () => void;
 }
 
 function SpectatorView({
@@ -48,13 +37,10 @@ function SpectatorView({
   questionsPerStage,
   players,
   isPaused,
+  showTimer,
   getTimeRemaining,
   onExpire,
   onReturnToPlayerView,
-  onPause,
-  onResume,
-  onSkipQuestion,
-  onForceNextStage,
 }: SpectatorViewProps) {
   const standings = [...players].sort(
     (first, second) =>
@@ -69,11 +55,12 @@ function SpectatorView({
   const stageQuestion = (currentQuestionIndex % questionsPerStage) + 1;
 
   return (
-    <main className="game-page spectator-page">
-      <section className="game-card spectator-card">
+    <>
         <header className="spectator-header">
           <div>
-            <p className="eyebrow">LIVE RACE · SPECTATOR</p>
+            <p className="eyebrow">
+              LIVE RACE · {isPaused ? "PAUSED" : "TRACK"}
+            </p>
 
             <h1>
               Stage {stage}: {STAGE_NAMES[stage]}
@@ -87,66 +74,22 @@ function SpectatorView({
           </div>
 
           <div className="spectator-header-actions">
-            <Timer getTimeRemaining={getTimeRemaining} onExpire={onExpire} />
-
-            <button
-              type="button"
-              className="secondary-button spectator-return"
-              onClick={onReturnToPlayerView}
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              Player view
-            </button>
-          </div>
-        </header>
-
-        <section className="host-controls" aria-label="Host controls">
-          <div>
-            <p className="eyebrow">RACE CONTROL</p>
-
-            <strong>{isPaused ? "Race paused" : "Race in progress"}</strong>
-          </div>
-
-          <div className="host-control-actions">
-            {isPaused ? (
-              <button
-                type="button"
-                className="primary-button"
-                onClick={onResume}
-              >
-                <Play size={16} aria-hidden="true" />
-                Resume
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={onPause}
-              >
-                <Pause size={16} aria-hidden="true" />
-                Pause
-              </button>
+            {showTimer && (
+              <Timer getTimeRemaining={getTimeRemaining} onExpire={onExpire} />
             )}
 
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={onSkipQuestion}
-            >
-              <SkipForward size={16} aria-hidden="true" />
-              Skip question
-            </button>
-
-            <button
-              type="button"
-              className="primary-button host-force-button"
-              onClick={onForceNextStage}
-            >
-              <Flag size={16} aria-hidden="true" />
-              {stage === 4 ? "Finish race" : "Force next stage"}
-            </button>
+            {onReturnToPlayerView && (
+              <button
+                type="button"
+                className="secondary-button spectator-return"
+                onClick={onReturnToPlayerView}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                Player view
+              </button>
+            )}
           </div>
-        </section>
+        </header>
 
         <section className="spectator-content" aria-label="Live leaderboard">
           <div className="spectator-section-heading">
@@ -171,11 +114,6 @@ function SpectatorView({
                 const car = CAR_OPTIONS.find(
                   (candidate) => candidate.id === player.carSprite,
                 );
-
-                console.log("[Spectator] player:", player.name);
-                console.log("[Spectator] player.carSprite:", player.carSprite);
-                console.log("[Spectator] resolved car:", car);
-                console.log("[Spectator] resolved image:", car?.image);
 
                 const scoreRange = highestScore - lowestScore;
 
@@ -238,7 +176,10 @@ function SpectatorView({
                   </span>
 
                   <span className="spectator-player-car">
-                    <img src={player.carSprite} alt="" />
+                    <img
+                      src={CAR_OPTIONS.find((car) => car.id === player.carSprite)?.image}
+                      alt=""
+                    />
                   </span>
 
                   <span className="spectator-player-name">
@@ -264,8 +205,7 @@ function SpectatorView({
             </p>
           )}
         </section>
-      </section>
-    </main>
+    </>
   );
 }
 

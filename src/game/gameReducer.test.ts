@@ -16,7 +16,7 @@ const questions: Question[] = [1, 2, 3, 4].map((stage) => ({
 const player = (id: string): Player => ({
   id,
   name: id,
-  carColor: "red",
+  carSprite: "pitstop_car_11",
   score: 0,
   hasAnswered: false,
   correctAnswersCount: 0,
@@ -55,6 +55,21 @@ describe("game state machine", () => {
     expect(answered.answerHistory).toHaveLength(1);
     expect(answered.players[0].score).toBe(100);
     expect(transition(answered, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 2000)).toBe(answered);
+  });
+
+  it("allows the host to force the next stage", () => {
+    const initial = createGameSession(questions, { questionsPerStage: 1, players: [player("a")] });
+    const playing = transition(initial, { type: "START_GAME" }, 0);
+    const transitionState = transition(playing, { type: "FORCE_NEXT_STAGE" }, 1000);
+
+    expect(transitionState.status).toBe(GameState.STAGE_TRANSITION);
+    expect(transitionState.stage).toBe(2);
+    expect(transitionState.currentQuestionIndex).toBe(1);
+    expect(transitionState.pendingStage).toBe(2);
+
+    const nextStage = transition(transitionState, { type: "CONTINUE_STAGE" }, 2000);
+    expect(nextStage.status).toBe(GameState.PLAYING);
+    expect(nextStage.currentQuestionIndex).toBe(1);
   });
 
   it("does not count paused time", () => {

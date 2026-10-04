@@ -8,15 +8,20 @@ interface TimerProps {
 }
 
 function Timer({ getTimeRemaining, onExpire }: TimerProps) {
-  const [timeLeft, setTimeLeft] = useState(() => getTimeRemaining());
+  const [timeLeft, setTimeLeft] = useState(() =>
+    Math.ceil(getTimeRemaining()),
+  );
 
   useEffect(() => {
     let expired = false;
 
     const updateTimer = () => {
       const remaining = Math.max(0, getTimeRemaining());
+      const displayedSeconds = Math.ceil(remaining);
 
-      setTimeLeft(remaining);
+      setTimeLeft((current) =>
+        current === displayedSeconds ? current : displayedSeconds,
+      );
 
       if (remaining <= 0 && !expired) {
         expired = true;
