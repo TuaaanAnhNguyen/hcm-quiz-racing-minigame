@@ -1614,6 +1614,70 @@ button {
   object-fit: contain;
 }
 
+/* Keep the road as the positioning context for its animated edges. */
+.live-race-road {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated red-and-white stripes on both road edges. */
+.live-race-road::before,
+.live-race-road::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  z-index: 2;
+  pointer-events: none;
+
+  background: repeating-linear-gradient(135deg,
+      #f8fafc 0px,
+      #f8fafc 9px,
+      #ef4444 9px,
+      #ef4444 18px);
+  background-size: 100% 36px;
+
+  animation: race-edge-stripes 0.65s linear infinite;
+}
+
+.live-race-road::before {
+  left: 0;
+}
+
+.live-race-road::after {
+  right: 0;
+}
+
+@keyframes race-edge-stripes {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 0 36px;
+  }
+}
+
+/* Cars glide instead of jumping when the race position changes. */
+.live-race-car {
+  transition: top 700ms ease-in-out;
+  will-change: top;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+  .live-race-road::before,
+  .live-race-road::after {
+    animation: none;
+  }
+
+  .live-race-car {
+    transition: none;
+  }
+}
+
 /* Score displayed beneath each car in the live track */
 .live-race-score-label {
   display: block;
