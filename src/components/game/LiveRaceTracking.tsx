@@ -1,7 +1,7 @@
 // src/components/game/LiveRaceTracking.tsx
 
 import { Focus, Minus, Plus, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CAR_OPTIONS } from "../../data/cars";
 import type { Player } from "../../types/game";
 
@@ -10,33 +10,78 @@ type TrackView = "focus" | "overview";
 interface LiveRaceTrackProps {
   players: Player[];
   playerId: string;
-  raceProgress: number;
 }
 
-function LiveRaceTrack({
-  players,
-  playerId,
-  raceProgress,
-}: LiveRaceTrackProps) {
-  const [view, setView] = useState<TrackView>("focus");
+const VIEW_STORAGE_KEY = "hcm-quiz-racing-track-view";
+
+function getSavedView(): TrackView {
+  try {
+    const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    return saved === "overview" ? "overview" : "focus";
+  } catch {
+    return "focus";
+  }
+}
+
+function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
+  const [view, setView] = useState<TrackView>(getSavedView);
   const [zoom, setZoom] = useState(1);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, view);
+    } catch {
+      // The track still works if browser storage is unavailable.
+    }
+  }, [view]);
+
+  // Highest-scoring players appear first.
+  const rankedPlayers = useMemo(
+    () =>
+      [...players].sort(
+        (a, b) => b.score - a.score || a.name.localeCompare(b.name),
+      ),
+    [players],
+  );
+
+  // Map scores to the road: lowest score near START, highest near FINISH.
+  // Equal scores produce equal progress. Negative scores remain on the road.
+  const progressByPlayer = useMemo(() => {
+    const scores = players.map((player) => player.score);
+    const minScore = Math.min(0, ...scores);
+    const maxScore = Math.max(0, ...scores);
+    const scoreRange = maxScore - minScore;
+
+    return new Map(
+      players.map((player) => {
+        const progress =
+          scoreRange === 0
+            ? 8
+            : 8 + ((player.score - minScore) / scoreRange) * 84;
+
+        return [player.id, progress];
+      }),
+    );
+  }, [players]);
+
   const visiblePlayers = useMemo(() => {
-    if (view === "overview") {
-      return players;
-    }
+    if (view === "overview") return rankedPlayers;
 
-    const playerIndex = players.findIndex((player) => player.id === playerId);
+    const playerIndex = rankedPlayers.findIndex(
+      (player) => player.id === playerId,
+    );
 
-    if (playerIndex === -1) {
-      return players.slice(0, 3);
-    }
+    if (playerIndex === -1) return rankedPlayers.slice(0, 3);
 
-    // Visual preview only: show the current player and nearby list entries.
-    const start = Math.max(0, Math.min(playerIndex - 1, players.length - 3));
+    // Keep the current player and nearby ranked competitors in focus view.
+    const count = Math.min(3, rankedPlayers.length);
+    const start = Math.max(
+      0,
+      Math.min(playerIndex - 1, rankedPlayers.length - count),
+    );
 
-    return players.slice(start, start + 3);
-  }, [players, playerId, view]);
+    return rankedPlayers.slice(start, start + count);
+  }, [rankedPlayers, playerId, view]);
 
   const trackHeight = 620 * zoom;
 
@@ -135,15 +180,14 @@ function LiveRaceTrack({
           </div>
 
           {visiblePlayers.map((racer) => {
-            const originalIndex = players.findIndex(
+            const rank = rankedPlayers.findIndex(
               (player) => player.id === racer.id,
             );
-
             const isMe = racer.id === playerId;
-
             const car = CAR_OPTIONS.find(
               (option) => option.id === racer.carSprite,
             );
+            const progress = progressByPlayer.get(racer.id) ?? 8;
 
             return (
               <div
@@ -151,15 +195,13 @@ function LiveRaceTrack({
                 key={racer.id}
               >
                 <span className="live-race-lane-number">
-                  {String(originalIndex + 1).padStart(2, "0")}
+                  {String(rank + 1).padStart(2, "0")}
                 </span>
 
                 <div
                   className={`live-race-car ${isMe ? "live-race-car-me" : ""}`}
-                  style={{
-                    top: `${100 - raceProgress}%`,
-                  }}
-                  title={`${racer.name} — race progress ${Math.round(raceProgress)}%`}
+                  style={{ top: `${100 - progress}%` }}
+                  title={`${racer.name} — ${Math.round(progress)}% relative score position`}
                 >
                   {car ? (
                     <img src={car.image} alt={car.name} />
@@ -168,6 +210,10 @@ function LiveRaceTrack({
                   )}
 
                   {isMe && <span className="live-race-you-label">YOU</span>}
+
+                  <span className="live-race-score-label">
+                    {racer.score.toLocaleString()} pts
+                  </span>
                 </div>
 
                 <span className="live-race-racer-label">{racer.name}</span>
@@ -184,7 +230,7 @@ function LiveRaceTrack({
 
       <footer className="live-race-panel-footer">
         <span className="live-race-status-dot" />
-        <span>Track preview · Positions are placeholders</span>
+        <span>Live standings · Sorted by score</span>
       </footer>
     </section>
   );
