@@ -10,20 +10,26 @@ type TrackView = "focus" | "overview";
 interface LiveRaceTrackProps {
   players: Player[];
   playerId: string;
+  raceProgress: number;
 }
 
 const VIEW_STORAGE_KEY = "hcm-quiz-racing-track-view";
 
 function getSavedView(): TrackView {
   try {
-    const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
-    return saved === "overview" ? "overview" : "focus";
+    return window.localStorage.getItem(VIEW_STORAGE_KEY) === "overview"
+      ? "overview"
+      : "focus";
   } catch {
     return "focus";
   }
 }
 
-function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
+function LiveRaceTrack({
+  players,
+  playerId,
+  raceProgress,
+}: LiveRaceTrackProps) {
   const [view, setView] = useState<TrackView>(getSavedView);
   const [zoom, setZoom] = useState(1);
 
@@ -31,11 +37,10 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
     try {
       window.localStorage.setItem(VIEW_STORAGE_KEY, view);
     } catch {
-      // The track still works if browser storage is unavailable.
+      // Keep the track usable if browser storage is unavailable.
     }
   }, [view]);
 
-  // Highest-scoring players appear first.
   const rankedPlayers = useMemo(
     () =>
       [...players].sort(
@@ -44,25 +49,33 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
     [players],
   );
 
-  // Map scores to the road: lowest score near START, highest near FINISH.
-  // Equal scores produce equal progress. Negative scores remain on the road.
+  // The question/stage controls the overall race position.
+  // Scores only move players a little forward or backward around that position.
   const progressByPlayer = useMemo(() => {
     const scores = players.map((player) => player.score);
     const minScore = Math.min(0, ...scores);
     const maxScore = Math.max(0, ...scores);
     const scoreRange = maxScore - minScore;
 
+    const overallProgress = Math.min(100, Math.max(0, raceProgress));
+
+    // Keep cars on the track before the finish, even for very high scores.
+    const baseProgress =
+      overallProgress >= 100 ? 94 : 6 + (overallProgress / 100) * 82;
+
     return new Map(
       players.map((player) => {
-        const progress =
-          scoreRange === 0
-            ? 8
-            : 8 + ((player.score - minScore) / scoreRange) * 84;
+        const scorePosition =
+          scoreRange === 0 ? 0.5 : (player.score - minScore) / scoreRange;
+
+        // Only a small score-based spread; stage/question progress remains primary.
+        const scoreOffset = (scorePosition - 0.5) * 7;
+        const progress = Math.min(96, Math.max(3, baseProgress + scoreOffset));
 
         return [player.id, progress];
       }),
     );
-  }, [players]);
+  }, [players, raceProgress]);
 
   const visiblePlayers = useMemo(() => {
     if (view === "overview") return rankedPlayers;
@@ -73,7 +86,6 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
 
     if (playerIndex === -1) return rankedPlayers.slice(0, 3);
 
-    // Keep the current player and nearby ranked competitors in focus view.
     const count = Math.min(3, rankedPlayers.length);
     const start = Math.max(
       0,
@@ -86,13 +98,13 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
   const trackHeight = 620 * zoom;
 
   return (
-    <section className="live-race-panel" aria-label="Live race track">
+    <section className="live-race-panel" aria-label="Đường đua trực tiếp">
       <header className="live-race-panel-header">
         <div>
-          <p className="eyebrow">LIVE TRACK</p>
-          <h2>Race view</h2>
+          <p className="eyebrow">ĐƯỜNG ĐUA TRỰC TIẾP</p>
+          <h2>Đường đua</h2>
           <p className="live-race-player-count">
-            {players.length} {players.length === 1 ? "racer" : "racers"}
+            {players.length} {players.length === 1 ? "tay đua" : "tay đua"}
           </p>
         </div>
 
@@ -103,9 +115,9 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
               view === "focus" ? "is-active" : ""
             }`}
             onClick={() => setView("focus")}
-            aria-label="Focus on my car"
+            aria-label="Tập trung vào xe của tôi"
             aria-pressed={view === "focus"}
-            title="Focus on me"
+            title="Tập trung vào tôi"
           >
             <Focus size={16} />
           </button>
@@ -116,9 +128,9 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
               view === "overview" ? "is-active" : ""
             }`}
             onClick={() => setView("overview")}
-            aria-label="Show all racers"
+            aria-label="Hiển thị tất cả tay đua"
             aria-pressed={view === "overview"}
-            title="Overview"
+            title="Xem toàn bộ đường đua"
           >
             <Users size={16} />
           </button>
@@ -126,7 +138,7 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
       </header>
 
       <div className="live-race-zoom-controls">
-        <span>{view === "focus" ? "FOCUS VIEW" : "FIELD OVERVIEW"}</span>
+        <span>{view === "focus" ? "THEO DÕI CỦA TÔI" : "TOÀN BỘ TAY ĐUA"}</span>
 
         <div>
           <button
@@ -134,8 +146,8 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
             className="live-race-icon-button"
             onClick={() => setZoom((current) => Math.max(0.75, current - 0.25))}
             disabled={zoom <= 0.75}
-            aria-label="Zoom out"
-            title="Zoom out"
+            aria-label="Thu nhỏ đường đua"
+            title="Thu nhỏ"
           >
             <Minus size={14} />
           </button>
@@ -145,8 +157,8 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
             className="live-race-icon-button"
             onClick={() => setZoom((current) => Math.min(1.5, current + 0.25))}
             disabled={zoom >= 1.5}
-            aria-label="Zoom in"
-            title="Zoom in"
+            aria-label="Phóng to đường đua"
+            title="Phóng to"
           >
             <Plus size={14} />
           </button>
@@ -166,17 +178,17 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
             )}, minmax(0, 1fr))`,
           }}
         >
-          <div className="live-race-finish" aria-label="Finish line">
-            <span>FINISH</span>
+          <div className="live-race-finish" aria-label="Vạch đích">
+            <span>VỀ ĐÍCH</span>
             <div className="live-race-checkerboard" />
           </div>
 
           <div className="live-race-milestone milestone-one">
-            <span>CHECKPOINT 02</span>
+            <span>CHẶNG 3</span>
           </div>
 
           <div className="live-race-milestone milestone-two">
-            <span>CHECKPOINT 01</span>
+            <span>CHẶNG 2</span>
           </div>
 
           {visiblePlayers.map((racer) => {
@@ -187,21 +199,19 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
             const car = CAR_OPTIONS.find(
               (option) => option.id === racer.carSprite,
             );
-            const progress = progressByPlayer.get(racer.id) ?? 8;
+            const progress = progressByPlayer.get(racer.id) ?? 3;
 
             return (
               <div
                 className={`live-race-lane ${isMe ? "live-race-lane-me" : ""}`}
                 key={racer.id}
               >
-                <span className="live-race-lane-number">
-                  {String(rank + 1).padStart(2, "0")}
-                </span>
+                <span className="live-race-lane-number">HẠNG {rank + 1}</span>
 
                 <div
                   className={`live-race-car ${isMe ? "live-race-car-me" : ""}`}
                   style={{ top: `${100 - progress}%` }}
-                  title={`${racer.name} — ${Math.round(progress)}% relative score position`}
+                  title={`${racer.name} — vị trí theo tiến độ cuộc đua`}
                 >
                   {car ? (
                     <img src={car.image} alt={car.name} />
@@ -209,10 +219,10 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
                     <span className="live-race-car-fallback">🏎️</span>
                   )}
 
-                  {isMe && <span className="live-race-you-label">YOU</span>}
+                  {isMe && <span className="live-race-you-label">BẠN</span>}
 
                   <span className="live-race-score-label">
-                    {racer.score.toLocaleString()} pts
+                    {racer.score.toLocaleString("vi-VN")} điểm
                   </span>
                 </div>
 
@@ -223,14 +233,14 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
 
           <div className="live-race-start">
             <div className="live-race-checkerboard" />
-            <span>START</span>
+            <span>XUẤT PHÁT</span>
           </div>
         </div>
       </div>
 
       <footer className="live-race-panel-footer">
         <span className="live-race-status-dot" />
-        <span>Live standings · Sorted by score</span>
+        <span>Thứ hạng cập nhật theo điểm số</span>
       </footer>
     </section>
   );
