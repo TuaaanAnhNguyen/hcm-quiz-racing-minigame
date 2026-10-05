@@ -98,8 +98,8 @@ function LobbyPage() {
             </h2>
 
             <p className="intro-text">
-              Trả lời chính xác để chinh phục cả bốn chặng đua kiến thức về
-              Thành phố Hồ Chí Minh.
+              Trả lời chính xác để chinh phục cả bốn chặng đua kiến thức về tư
+              tưởng Hồ Chí Minh về con người.
             </p>
           </div>
 

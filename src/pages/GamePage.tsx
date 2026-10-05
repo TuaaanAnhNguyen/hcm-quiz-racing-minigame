@@ -94,38 +94,49 @@ function GamePage() {
   /*
    * Stage transition screen
    */
+
   if (status === GameState.STAGE_TRANSITION) {
     const isFinished = stage === 4 && pendingStage === null;
 
     return (
-      <main className="transition-page">
-        <section className="transition-card">
-          <div className="transition-icon">{isFinished ? "🏁" : "🏎️"}</div>
+      <main className="game-page">
+        <section className="game-card player-game-card">
+          <div className="player-game-layout">
+            <div className="player-question-column transition-card">
+              <div className="transition-icon">{isFinished ? "🏁" : "🏎️"}</div>
 
-          <p className="eyebrow">Chặng {stage}</p>
+              <p className="eyebrow">Chặng {stage}</p>
 
-          <h1>
-            {isFinished ? "Cuộc đua kết thúc!" : `Hoàn thành chặng ${stage}!`}
-          </h1>
+              <h1>
+                {isFinished
+                  ? "Cuộc đua kết thúc!"
+                  : `Hoàn thành chặng ${stage}!`}
+              </h1>
 
-          <p>
-            {isFinished
-              ? "Bạn đã hoàn thành cả bốn chặng đua."
-              : `Hãy sẵn sàng cho chặng ${
-                  STAGE_NAMES[pendingStage ?? stage + 1] ??
-                  pendingStage ??
-                  stage + 1
-                }.`}
-          </p>
+              <p>
+                {isFinished
+                  ? "Bạn đã hoàn thành cả bốn chặng đua."
+                  : `Hãy sẵn sàng cho chặng ${
+                      STAGE_NAMES[pendingStage ?? stage + 1] ??
+                      pendingStage ??
+                      stage + 1
+                    }.`}
+              </p>
 
-          {player && (
-            <div className="transition-score">
-              <span>Điểm của bạn</span>
-              <strong>{player.score}</strong>
+              {player && (
+                <div className="transition-score">
+                  <span>Điểm của bạn</span>
+                  <strong>{player.score}</strong>
+                </div>
+              )}
+
+              <p>Đang chờ quản trò tiếp tục cuộc đua.</p>
             </div>
-          )}
 
-          <p>Đang chờ quản trò tiếp tục cuộc đua.</p>
+            <aside className="player-race-column">
+              <LiveRacePanel players={players} playerId={player?.id ?? ""} />
+            </aside>
+          </div>
         </section>
       </main>
     );
@@ -149,10 +160,11 @@ function GamePage() {
   /*
    * Result screen
    */
+
   if (status === GameState.QUESTION_RESULT) {
     return (
       <main className="game-page">
-        <section className="game-card">
+        <section className="game-card player-game-card">
           <header className="game-header">
             <div>
               <p className="eyebrow">Chặng {stage}</p>
@@ -160,24 +172,31 @@ function GamePage() {
             </div>
           </header>
 
-          <div className="progress-row">
-            <span>{progressText}</span>
+          <div className="player-game-layout">
+            <div className="player-question-column">
+              <div className="progress-row">
+                <span>{progressText}</span>
+                <span>
+                  Điểm: <strong>{player.score}</strong>
+                </span>
+              </div>
 
-            <span>
-              Điểm: <strong>{player.score}</strong>
-            </span>
+              <QuestionResult
+                question={currentQuestion}
+                selectedIndex={currentAnswer?.selectedIndex ?? null}
+                correct={currentAnswer?.correct ?? false}
+                scoreEarned={currentAnswer?.scoreEarned ?? 0}
+              />
+
+              <footer className="game-footer">
+                <PlayerStatus player={player} />
+              </footer>
+            </div>
+
+            <aside className="player-race-column">
+              <LiveRacePanel players={players} playerId={player.id} />
+            </aside>
           </div>
-
-          <QuestionResult
-            question={currentQuestion}
-            selectedIndex={currentAnswer?.selectedIndex ?? null}
-            correct={currentAnswer?.correct ?? false}
-            scoreEarned={currentAnswer?.scoreEarned ?? 0}
-          />
-
-          <footer className="game-footer">
-            <PlayerStatus player={player} />
-          </footer>
         </section>
       </main>
     );

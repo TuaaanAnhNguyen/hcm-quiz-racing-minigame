@@ -1614,6 +1614,54 @@ button {
   object-fit: contain;
 }
 
+/* Score displayed beneath each car in the live track */
+.live-race-score-label {
+  display: block;
+  width: max-content;
+  max-width: 100px;
+  margin: 3px auto 0;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 5px;
+  background: #151719;
+  color: #f4f4f5;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Animate cars as standings change */
+.live-race-car {
+  transition: top 700ms ease-in-out;
+}
+
+/* Keep the question and track columns aligned on result screens too */
+.player-game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(235px, 3fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.player-question-column,
+.player-race-column {
+  min-width: 0;
+}
+
+.player-race-column {
+  align-self: stretch;
+}
+
+@media (max-width: 760px) {
+  .player-game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
 .primary-button,
 .secondary-button {
   border: 0;
