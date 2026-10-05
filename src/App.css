@@ -992,6 +992,7 @@ button {
   gap: 2px;
   width: 100%;
   transform: translate(-50%, -50%);
+  transition: top 700ms ease-in-out;
 }
 
 .live-race-car img {
