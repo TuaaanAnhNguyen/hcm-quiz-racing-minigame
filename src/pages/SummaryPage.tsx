@@ -1,12 +1,16 @@
 // src/pages/SummaryPage.tsx
 
 import { useGameStore } from "../store/useGameStore";
+import Podium from "../components/summary/Podium";
 
 function SummaryPage() {
   const players = useGameStore((state) => state.players);
   const resetGame = useGameStore((state) => state.resetGame);
 
-  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const handlePlayAgain = () => {
+    resetGame();
+    window.location.assign("/");
+  };
 
   return (
     <main className="summary-page">
@@ -21,29 +25,13 @@ function SummaryPage() {
           <p>Bạn đã hoàn thành cả bốn chặng đua.</p>
         </div>
 
-        <div className="podium-list">
-          {sortedPlayers.map((player, index) => (
-            <div className="result-row" key={player.id}>
-              <div className="result-position">#{index + 1}</div>
+        <Podium players={players} />
 
-              <span
-                className="mini-car"
-                style={{ backgroundColor: player.carSprite }}
-              >
-                🏎️
-              </span>
-
-              <div className="result-player">
-                <strong>{player.name}</strong>
-                <span>{player.correctAnswersCount} câu trả lời đúng</span>
-              </div>
-
-              <strong className="result-score">{player.score}</strong>
-            </div>
-          ))}
-        </div>
-
-        <button type="button" className="primary-button" onClick={resetGame}>
+        <button
+          type="button"
+          className="primary-button"
+          onClick={handlePlayAgain}
+        >
           Đua lại
         </button>
       </section>

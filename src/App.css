@@ -1604,6 +1604,14 @@ button {
   justify-content: center;
   border-radius: 9px;
   font-size: 20px;
+  flex-shrink: 0;
+}
+
+.summary-car-image {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
 }
 
 .primary-button,
