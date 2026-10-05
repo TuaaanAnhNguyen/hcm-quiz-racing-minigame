@@ -183,13 +183,18 @@ function LiveRaceTrack({
             <div className="live-race-checkerboard" />
           </div>
 
-          <div className="live-race-milestone milestone-one">
-            <span>CHẶNG 3</span>
-          </div>
-
-          <div className="live-race-milestone milestone-two">
-            <span>CHẶNG 2</span>
-          </div>
+          <div
+            className="live-race-stage-divider stage-divider-one"
+            aria-hidden="true"
+          />
+          <div
+            className="live-race-stage-divider stage-divider-two"
+            aria-hidden="true"
+          />
+          <div
+            className="live-race-stage-divider stage-divider-three"
+            aria-hidden="true"
+          />
 
           {visiblePlayers.map((racer) => {
             const rank = rankedPlayers.findIndex(
