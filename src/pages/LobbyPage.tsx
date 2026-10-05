@@ -5,6 +5,41 @@ import { useGameStore } from "../store/useGameStore";
 import { CAR_OPTIONS } from "../data/cars";
 import { getRoomRoute } from "../lib/roomRouting";
 
+const STAGE_GUIDE = [
+  {
+    number: "01",
+    name: "Khởi động",
+    difficulty: "Câu hỏi dễ",
+    className: "stage-guide-warmup",
+    description:
+      "Làm nóng với những câu hỏi dễ. Trả lời đúng để nhận điểm cơ bản; trả lời sai không bị trừ điểm.",
+  },
+  {
+    number: "02",
+    name: "Tăng tốc",
+    difficulty: "Câu hỏi trung bình",
+    className: "stage-guide-speed",
+    description:
+      "Tốc độ cuộc đua tăng lên. Trả lời đúng càng nhanh, điểm thưởng càng cao; trả lời sai không bị trừ điểm.",
+  },
+  {
+    number: "03",
+    name: "Thử thách",
+    difficulty: "Câu hỏi khó",
+    className: "stage-guide-challenge",
+    description:
+      "Hãy đọc kỹ trước khi chọn. Trả lời đúng nhanh được thưởng nhiều hơn; trả lời sai sẽ bị trừ điểm, và sai càng nhanh thì mức trừ càng lớn.",
+  },
+  {
+    number: "04",
+    name: "Về đích",
+    difficulty: "Câu hỏi trung bình",
+    className: "stage-guide-finish",
+    description:
+      "Nhịp đua nhẹ hơn nhưng đừng mất tập trung. Trả lời đúng nhận điểm cơ bản, trả lời sai bị trừ điểm cơ bản; dẫn đầu cũng chưa thể chủ quan.",
+  },
+];
+
 function LobbyPage() {
   const route = getRoomRoute();
   const roomCode = route.roomCode;
@@ -231,6 +266,27 @@ function LobbyPage() {
                 </p>
               </>
             )}
+          </div>
+        </section>
+
+        <section className="stage-guide" aria-labelledby="stage-guide-title">
+          <div className="stage-guide-heading">
+            <p className="section-label">LUẬT ĐUA</p>
+            <h2 id="stage-guide-title">Bốn chặng, bốn cách bứt phá</h2>
+            <p>Nắm luật từng chặng để chọn thời điểm tăng tốc hợp lý.</p>
+          </div>
+
+          <div className="stage-guide-grid">
+            {STAGE_GUIDE.map((stage) => (
+              <article className={`stage-guide-item ${stage.className}`} key={stage.number}>
+                <div className="stage-guide-meta">
+                  <span className="stage-guide-number">{stage.number}</span>
+                  <span>{stage.difficulty}</span>
+                </div>
+                <h3>{stage.name}</h3>
+                <p>{stage.description}</p>
+              </article>
+            ))}
           </div>
         </section>
 
