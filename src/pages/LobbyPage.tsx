@@ -129,7 +129,7 @@ function LobbyPage() {
             <h2>
               Thử sức kiến thức.
               <br />
-              <span>Tăng tốc về đích.</span>
+              <span>Bứt tốc về đích.</span>
             </h2>
 
             <p className="intro-text">
