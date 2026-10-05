@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createGameSession, transition } from "./gameReducer";
 import { calculateScore } from "./scoring";
 import { getTimeLeft } from "./timer";
+import { organizeQuestionsByStage } from "./questionSelector";
 import { GameState, type Player, type Question } from "../types/game";
 
 const questions: Question[] = [1, 2, 3, 4].map((stage) => ({
@@ -46,26 +47,38 @@ describe("game state machine", () => {
     expect(transition(transition(playing, { type: "PAUSE_GAME" }, 1000), { type: "RESUME_GAME" }, 5000).status).toBe(GameState.PLAYING);
   });
 
-  it("records one answer, rejects duplicates, and enters stage transition", () => {
+  it("defers score changes until the question is revealed", () => {
     const initial = createGameSession(questions, { questionsPerStage: 1, players: [player("a")] });
     const playing = transition(initial, { type: "START_GAME" }, 0);
-    const answered = transition(playing, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 1000);
+    const submitted = transition(playing, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 1000);
 
-    expect(answered.status).toBe(GameState.STAGE_TRANSITION);
-    expect(answered.answerHistory).toHaveLength(1);
-    expect(answered.players[0].score).toBe(100);
-    expect(transition(answered, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 2000)).toBe(answered);
+    expect(submitted.status).toBe(GameState.PLAYING);
+    expect(submitted.players[0].hasAnswered).toBe(true);
+    expect(submitted.players[0].score).toBe(0);
+    expect(submitted.players[0].correctAnswersCount).toBe(0);
+    expect(submitted.answerHistory).toHaveLength(1);
+    expect(transition(submitted, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 2000)).toBe(submitted);
+
+    const revealed = transition(submitted, { type: "REVEAL_QUESTION" }, 2000);
+    expect(revealed.status).toBe(GameState.QUESTION_RESULT);
+    expect(revealed.players[0].score).toBe(100);
+    expect(revealed.players[0].correctAnswersCount).toBe(1);
+    expect(transition(revealed, { type: "NEXT_QUESTION" }, 3000).status).toBe(GameState.STAGE_TRANSITION);
   });
 
-  it("allows the host to force the next stage", () => {
+  it("settles submitted answers when the host forces the next stage", () => {
     const initial = createGameSession(questions, { questionsPerStage: 1, players: [player("a")] });
     const playing = transition(initial, { type: "START_GAME" }, 0);
-    const transitionState = transition(playing, { type: "FORCE_NEXT_STAGE" }, 1000);
+    const submitted = transition(playing, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 500);
+    expect(submitted.players[0].score).toBe(0);
+
+    const transitionState = transition(submitted, { type: "FORCE_NEXT_STAGE" }, 1000);
 
     expect(transitionState.status).toBe(GameState.STAGE_TRANSITION);
     expect(transitionState.stage).toBe(2);
     expect(transitionState.currentQuestionIndex).toBe(1);
     expect(transitionState.pendingStage).toBe(2);
+    expect(transitionState.players[0].score).toBe(100);
 
     const nextStage = transition(transitionState, { type: "CONTINUE_STAGE" }, 2000);
     expect(nextStage.status).toBe(GameState.PLAYING);
@@ -82,18 +95,32 @@ describe("game state machine", () => {
 
   it("moves from the final stage transition to summary and resets cleanly", () => {
     let state = createGameSession(questions, { questionsPerStage: 1, players: [player("a")] });
-    state = transition(state, { type: "START_GAME" }, 0);
+    let now = 0;
+    state = transition(state, { type: "START_GAME" }, now);
     for (let index = 0; index < 4; index += 1) {
-      state = transition(state, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, index * 1000);
+      state = transition(state, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, ++now);
+      state = transition(state, { type: "REVEAL_QUESTION" }, ++now);
+      state = transition(state, { type: "NEXT_QUESTION" }, ++now);
       if (state.status === GameState.STAGE_TRANSITION) {
-        state = transition(state, { type: "CONTINUE_STAGE" }, index * 1000 + 1);
+        state = transition(state, { type: "CONTINUE_STAGE" }, ++now);
       }
     }
+    state = transition(state, { type: "CONTINUE_STAGE" }, ++now);
     expect(state.status).toBe(GameState.SUMMARY);
     expect(transition(state, { type: "PAUSE_GAME" })).toBe(state);
     const reset = transition(state, { type: "RESET_GAME" });
     expect(reset.status).toBe(GameState.LOBBY);
     expect(reset.answerHistory).toHaveLength(0);
     expect(reset.players).toHaveLength(0);
+  });
+});
+
+describe("organizeQuestionsByStage", () => {
+  it("uses different medium questions for stages 2 and 4", () => {
+    const organized = organizeQuestionsByStage(questions, 1);
+
+    expect(organized[1].difficulty).toBe("medium");
+    expect(organized[3].difficulty).toBe("medium");
+    expect(organized[1].id).not.toBe(organized[3].id);
   });
 });

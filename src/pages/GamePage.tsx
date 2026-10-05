@@ -1,22 +1,20 @@
-// src/pages/GamePage.tsx
-
 import { useCallback, useMemo, useState } from "react";
 import { Eye } from "lucide-react";
 import Timer from "../components/Timer";
 import SpectatorView from "../components/game/SpectatorView";
+import LiveRacePanel from "./LiveRacePanel";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
 import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
 import { getRoomRoute } from "../lib/roomRouting";
-import LiveRacePanel from "./LiveRacePanel";
 
 const STAGE_NAMES: Record<number, string> = {
-  1: "Easy Start",
-  2: "City Challenge",
-  3: "Hard Race",
-  4: "Final Sprint",
+  1: "Khởi động",
+  2: "Tăng tốc",
+  3: "Thử thách",
+  4: "Về đích",
 };
 
 function GamePage() {
@@ -62,14 +60,14 @@ function GamePage() {
 
   const progressText = useMemo(() => {
     if (!currentQuestion) {
-      return "No question";
+      return "Chưa có câu hỏi";
     }
 
-    const stageStart = (stage - 1) * 2;
+    const stageStart = (stage - 1) * questionsPerStage;
     const questionNumber = currentQuestionIndex - stageStart + 1;
 
-    return `Question ${questionNumber} / 2`;
-  }, [currentQuestion, currentQuestionIndex, stage]);
+    return `Câu ${questionNumber} / ${questionsPerStage}`;
+  }, [currentQuestion, currentQuestionIndex, questionsPerStage, stage]);
 
   if (spectatorMode) {
     return (
@@ -104,24 +102,30 @@ function GamePage() {
         <section className="transition-card">
           <div className="transition-icon">{isFinished ? "🏁" : "🏎️"}</div>
 
-          <p className="eyebrow">Stage {stage}</p>
+          <p className="eyebrow">Chặng {stage}</p>
 
-          <h1>{isFinished ? "Race Complete!" : `Stage ${stage} Complete!`}</h1>
+          <h1>
+            {isFinished ? "Cuộc đua kết thúc!" : `Hoàn thành chặng ${stage}!`}
+          </h1>
 
           <p>
             {isFinished
-              ? "You have finished all four stages."
-              : `Get ready for ${STAGE_NAMES[stage] ?? `Stage ${stage}`}.`}
+              ? "Bạn đã hoàn thành cả bốn chặng đua."
+              : `Hãy sẵn sàng cho chặng ${
+                  STAGE_NAMES[pendingStage ?? stage + 1] ??
+                  pendingStage ??
+                  stage + 1
+                }.`}
           </p>
 
           {player && (
             <div className="transition-score">
-              <span>Your score</span>
+              <span>Điểm của bạn</span>
               <strong>{player.score}</strong>
             </div>
           )}
 
-          <p>Waiting for the race admin to continue.</p>
+          <p>Đang chờ quản trò tiếp tục cuộc đua.</p>
         </section>
       </main>
     );
@@ -134,7 +138,7 @@ function GamePage() {
     return (
       <main className="transition-page">
         <section className="game-card">
-          <h1>Waiting for game...</h1>
+          <h1>Đang chờ cuộc đua bắt đầu...</h1>
         </section>
       </main>
     );
@@ -144,9 +148,6 @@ function GamePage() {
 
   /*
    * Result screen
-   *
-   * The question stays on screen, but the timer is gone because
-   * the reducer changes status from PLAYING to QUESTION_RESULT.
    */
   if (status === GameState.QUESTION_RESULT) {
     return (
@@ -154,8 +155,8 @@ function GamePage() {
         <section className="game-card">
           <header className="game-header">
             <div>
-              <p className="eyebrow">Stage {stage}</p>
-              <h1>{STAGE_NAMES[stage] ?? `Stage ${stage}`}</h1>
+              <p className="eyebrow">Chặng {stage}</p>
+              <h1>{STAGE_NAMES[stage] ?? `Chặng ${stage}`}</h1>
             </div>
           </header>
 
@@ -163,7 +164,7 @@ function GamePage() {
             <span>{progressText}</span>
 
             <span>
-              Score: <strong>{player.score}</strong>
+              Điểm: <strong>{player.score}</strong>
             </span>
           </div>
 
@@ -190,8 +191,8 @@ function GamePage() {
       <section className="game-card player-game-card">
         <header className="game-header">
           <div>
-            <p className="eyebrow">Stage {stage}</p>
-            <h1>{STAGE_NAMES[stage] ?? `Stage ${stage}`}</h1>
+            <p className="eyebrow">Chặng {stage}</p>
+            <h1>{STAGE_NAMES[stage] ?? `Chặng ${stage}`}</h1>
           </div>
 
           <div className="game-header-controls">
@@ -203,7 +204,7 @@ function GamePage() {
               onClick={() => setSpectatorMode(true)}
             >
               <Eye size={16} aria-hidden="true" />
-              Live race
+              Bảng đua trực tiếp
             </button>
           </div>
         </header>
@@ -214,7 +215,7 @@ function GamePage() {
               <span>{progressText}</span>
 
               <span>
-                Score: <strong>{player.score}</strong>
+                Điểm: <strong>{player.score}</strong>
               </span>
             </div>
 
@@ -234,7 +235,7 @@ function GamePage() {
               <PlayerStatus player={player} />
 
               {status === GameState.PAUSED && (
-                <span>Race paused by the admin</span>
+                <span>Quản trò đã tạm dừng cuộc đua</span>
               )}
             </footer>
           </div>

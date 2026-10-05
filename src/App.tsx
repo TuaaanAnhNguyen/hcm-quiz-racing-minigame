@@ -33,13 +33,13 @@ function App() {
       <main className="transition-page">
         <section className="transition-card">
           <p className="eyebrow">HCM QUIZ RACING</p>
-          <h1>Host link unavailable</h1>
+          <h1>Liên kết quản trò không hợp lệ</h1>
           <p>
-            This host link is invalid in this browser. Create a new room from
-            the host setup page.
+            Liên kết này không hợp lệ hoặc không có trong trình duyệt hiện tại.
+            Hãy tạo phòng mới để bắt đầu cuộc đua.
           </p>
           <a className="race-button" href="/host">
-            Create a room
+            Tạo phòng mới
           </a>
         </section>
       </main>

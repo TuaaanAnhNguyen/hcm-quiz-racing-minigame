@@ -1,11 +1,20 @@
 // src/pages/AdminPage.tsx
 
 import { useCallback, useState } from "react";
-import { Flag, Play, RotateCcw, SkipForward, Pause, Copy } from "lucide-react";
+import { Eye, Flag, Play, RotateCcw, SkipForward, Pause, Copy } from "lucide-react";
 import SpectatorView from "../components/game/SpectatorView";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
 import { getRoomRoute } from "../lib/roomRouting";
+
+const STATUS_LABELS: Record<GameState, string> = {
+  [GameState.LOBBY]: "Sảnh chờ",
+  [GameState.PLAYING]: "Đang thi đấu",
+  [GameState.PAUSED]: "Đã tạm dừng",
+  [GameState.QUESTION_RESULT]: "Kết quả câu hỏi",
+  [GameState.STAGE_TRANSITION]: "Chuyển chặng",
+  [GameState.SUMMARY]: "Đã kết thúc",
+};
 
 function AdminPage() {
   const status = useGameStore((state) => state.status);
@@ -20,6 +29,7 @@ function AdminPage() {
   const startGame = useGameStore((state) => state.startGame);
   const pauseGame = useGameStore((state) => state.pauseGame);
   const resumeGame = useGameStore((state) => state.resumeGame);
+  const revealQuestion = useGameStore((state) => state.revealQuestion);
   const timeExpired = useGameStore((state) => state.timeExpired);
   const nextQuestion = useGameStore((state) => state.nextQuestion);
   const skipQuestion = useGameStore((state) => state.skipQuestion);
@@ -54,11 +64,10 @@ function AdminPage() {
       <section className="game-card spectator-card">
         <header className="spectator-header">
           <div>
-            <p className="eyebrow">HCM QUIZ RACING · ADMIN</p>
-            <h1>Race Control</h1>
+            <p className="eyebrow">HCM QUIZ RACING · QUẢN TRÒ</p>
+            <h1>Điều khiển cuộc đua</h1>
             <p className="spectator-subtitle">
-              Stage {stage} · {status.replaceAll("_", " ")} · {players.length}{" "}
-              racers
+              Chặng {stage} · {STATUS_LABELS[status]} · {players.length} tay đua
             </p>
           </div>
           <div className="spectator-header-actions">
@@ -66,10 +75,12 @@ function AdminPage() {
               className={`connection-status connection-${connectionStatus}`}
             >
               {connectionStatus === "connected"
-                ? "Realtime connected"
+                ? "Đã kết nối trực tiếp"
                 : connectionStatus === "offline"
-                  ? "Realtime not configured"
-                  : connectionStatus}
+                  ? "Chưa cấu hình kết nối"
+                  : connectionStatus === "connecting"
+                    ? "Đang kết nối"
+                    : "Lỗi kết nối"}
             </span>
           </div>
         </header>
@@ -77,10 +88,10 @@ function AdminPage() {
         {roomCode && (
           <section className="room-invite-panel">
             <div className="room-invite-info">
-              <p className="eyebrow">INVITE PLAYERS</p>
-              <h2>Room code</h2>
+              <p className="eyebrow">MỜI NGƯỜI CHƠI</p>
+              <h2>Mã phòng</h2>
               <p>
-                Share this code with your players so they can join your race.
+                Gửi mã này cho người chơi để họ tham gia cuộc đua.
               </p>
 
               <div className="room-code-display">{roomCode}</div>
@@ -93,12 +104,12 @@ function AdminPage() {
                 onClick={() => void handleCopy(roomCode, "code")}
               >
                 <Copy size={16} aria-hidden="true" />
-                {copiedItem === "code" ? "Code copied!" : "Copy room code"}
+                {copiedItem === "code" ? "Đã sao chép mã!" : "Sao chép mã phòng"}
               </button>
 
               <div className="room-invite-link">
                 <label htmlFor="player-invite-url">
-                  PLAYER INVITATION LINK
+                  LIÊN KẾT MỜI NGƯỜI CHƠI
                 </label>
                 <input
                   id="player-invite-url"
@@ -114,7 +125,7 @@ function AdminPage() {
                   onClick={() => void handleCopy(inviteUrl, "link")}
                 >
                   <Copy size={16} aria-hidden="true" />
-                  {copiedItem === "link" ? "Link copied!" : "Copy invite link"}
+                  {copiedItem === "link" ? "Đã sao chép liên kết!" : "Sao chép liên kết mời"}
                 </button>
               </div>
             </div>
@@ -123,19 +134,19 @@ function AdminPage() {
 
         {!controlEnabled && (
           <p className="admin-notice">
-            Configure Supabase Realtime to connect player browsers. The admin
-            remains the only game-state authority.
+            Hãy cấu hình Supabase Realtime để kết nối thiết bị người chơi. Quản
+            trò vẫn là nơi duy nhất quyết định trạng thái và kết quả cuộc đua.
           </p>
         )}
 
-        <section className="host-controls" aria-label="Race controls">
+        <section className="host-controls" aria-label="Điều khiển cuộc đua">
           <div>
-            <p className="eyebrow">RACE CONTROL</p>
+            <p className="eyebrow">ĐIỀU KHIỂN CUỘC ĐUA</p>
             <strong>
               {currentQuestion?.question ??
                 (status === GameState.LOBBY
-                  ? "Waiting in the grid"
-                  : "Race complete")}
+                  ? "Đang chờ người chơi"
+                  : "Cuộc đua đã kết thúc")}
             </strong>
           </div>
           <div className="host-control-actions">
@@ -147,7 +158,7 @@ function AdminPage() {
                 disabled={!questions.length || !players.length}
               >
                 <Play size={16} aria-hidden="true" />
-                Start race
+                Bắt đầu cuộc đua
               </button>
             )}
             {status === GameState.PLAYING && (
@@ -157,7 +168,7 @@ function AdminPage() {
                 onClick={pauseGame}
               >
                 <Pause size={16} aria-hidden="true" />
-                Pause
+                Tạm dừng
               </button>
             )}
             {status === GameState.PAUSED && (
@@ -167,7 +178,7 @@ function AdminPage() {
                 onClick={resumeGame}
               >
                 <Play size={16} aria-hidden="true" />
-                Resume
+                Tiếp tục
               </button>
             )}
             {status === GameState.QUESTION_RESULT && (
@@ -177,7 +188,7 @@ function AdminPage() {
                 onClick={nextQuestion}
               >
                 <Play size={16} aria-hidden="true" />
-                Next question
+                Câu hỏi tiếp theo
               </button>
             )}
             {status === GameState.STAGE_TRANSITION && (
@@ -187,7 +198,7 @@ function AdminPage() {
                 onClick={continueStage}
               >
                 <Play size={16} aria-hidden="true" />
-                {stage === 4 ? "View results" : "Continue stage"}
+                {stage === 4 ? "Xem kết quả" : "Bắt đầu chặng tiếp theo"}
               </button>
             )}
             {(status === GameState.PLAYING || status === GameState.PAUSED) && (
@@ -195,10 +206,18 @@ function AdminPage() {
                 <button
                   type="button"
                   className="secondary-button"
+                  onClick={revealQuestion}
+                >
+                  <Eye size={16} aria-hidden="true" />
+                  Công bố kết quả
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button"
                   onClick={skipQuestion}
                 >
                   <SkipForward size={16} aria-hidden="true" />
-                  Skip question
+                  Bỏ qua câu hỏi
                 </button>
                 <button
                   type="button"
@@ -206,7 +225,7 @@ function AdminPage() {
                   onClick={forceNextStage}
                 >
                   <Flag size={16} aria-hidden="true" />
-                  {stage === 4 ? "Finish race" : "Force next stage"}
+                  {stage === 4 ? "Kết thúc cuộc đua" : "Chuyển sang chặng tiếp"}
                 </button>
               </>
             )}
@@ -217,7 +236,7 @@ function AdminPage() {
                 onClick={resetGame}
               >
                 <RotateCcw size={16} aria-hidden="true" />
-                Reset race
+                Chơi lại
               </button>
             )}
           </div>

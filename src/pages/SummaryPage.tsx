@@ -14,11 +14,11 @@ function SummaryPage() {
         <div className="summary-header">
           <span className="summary-trophy">🏆</span>
 
-          <p className="eyebrow">Race Finished</p>
+          <p className="eyebrow">Cuộc đua kết thúc</p>
 
-          <h1>Final Results</h1>
+          <h1>Kết quả chung cuộc</h1>
 
-          <p>You completed all four stages.</p>
+          <p>Bạn đã hoàn thành cả bốn chặng đua.</p>
         </div>
 
         <div className="podium-list">
@@ -35,7 +35,7 @@ function SummaryPage() {
 
               <div className="result-player">
                 <strong>{player.name}</strong>
-                <span>{player.correctAnswersCount} correct answers</span>
+                <span>{player.correctAnswersCount} câu trả lời đúng</span>
               </div>
 
               <strong className="result-score">{player.score}</strong>
@@ -44,7 +44,7 @@ function SummaryPage() {
         </div>
 
         <button type="button" className="primary-button" onClick={resetGame}>
-          Race Again
+          Đua lại
         </button>
       </section>
     </main>

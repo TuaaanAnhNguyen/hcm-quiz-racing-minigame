@@ -6,17 +6,17 @@ import Timer from "../Timer";
 import { CAR_OPTIONS } from "../../data/cars";
 
 const STAGE_NAMES: Record<StageNumber, string> = {
-  1: "Warm-up",
-  2: "Acceleration",
-  3: "Challenge",
-  4: "Final Sprint",
+  1: "Khởi động",
+  2: "Tăng tốc",
+  3: "Thử thách",
+  4: "Về đích",
 };
 
 const TRACK_NAMES: Record<StageNumber, string> = {
-  1: "OVAL CIRCUIT",
-  2: "DRAG STRIP",
-  3: "HAIRPIN CIRCUIT",
-  4: "GRAND PRIX FINISH",
+  1: "ĐƯỜNG ĐUA HÌNH OVAL",
+  2: "ĐƯỜNG ĐUA TĂNG TỐC",
+  3: "ĐƯỜNG ĐUA ZÍCH ZẮC",
+  4: "ĐƯỜNG ĐUA VỀ ĐÍCH",
 };
 
 interface SpectatorViewProps {
@@ -59,17 +59,15 @@ function SpectatorView({
         <header className="spectator-header">
           <div>
             <p className="eyebrow">
-              LIVE RACE · {isPaused ? "PAUSED" : "TRACK"}
+              ĐUA TRỰC TIẾP · {isPaused ? "ĐÃ TẠM DỪNG" : "ĐƯỜNG ĐUA"}
             </p>
 
             <h1>
-              Stage {stage}: {STAGE_NAMES[stage]}
+              Chặng {stage}: {STAGE_NAMES[stage]}
             </h1>
 
             <p className="spectator-subtitle">
-              Question {stageQuestion} of {questionsPerStage} ·{" "}
-              {standings.length} {standings.length === 1 ? "racer" : "racers"}{" "}
-              racing
+              Câu {stageQuestion}/{questionsPerStage} · {standings.length} tay đua
             </p>
           </div>
 
@@ -85,21 +83,21 @@ function SpectatorView({
                 onClick={onReturnToPlayerView}
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                Player view
+                Màn hình người chơi
               </button>
             )}
           </div>
         </header>
 
-        <section className="spectator-content" aria-label="Live leaderboard">
+        <section className="spectator-content" aria-label="Bảng xếp hạng trực tiếp">
           <div className="spectator-section-heading">
             <div>
-              <p className="eyebrow">TRACK VIEW</p>
+              <p className="eyebrow">SƠ ĐỒ ĐƯỜNG ĐUA</p>
               <h2>{TRACK_NAMES[stage]}</h2>
             </div>
 
             <span className={`track-stage-mark track-stage-mark-${stage}`}>
-              STAGE 0{stage}
+              CHẶNG 0{stage}
             </span>
           </div>
 
@@ -107,7 +105,7 @@ function SpectatorView({
             {standings.length === 0 ? (
               <div className="spectator-empty">
                 <Users size={24} aria-hidden="true" />
-                <strong>No racers registered</strong>
+                <strong>Chưa có tay đua nào</strong>
               </div>
             ) : (
               standings.map((player, index) => {
@@ -134,7 +132,7 @@ function SpectatorView({
                       <span
                         className="track-car"
                         style={{ left: `${progress}%` }}
-                        title={`${player.name}: ${player.score} points`}
+                        title={`${player.name}: ${player.score} điểm`}
                       >
                         {car && <img src={car.image} alt={car.name} />}
                       </span>
@@ -143,7 +141,7 @@ function SpectatorView({
                     </div>
 
                     <span className="track-points">
-                      {player.score.toLocaleString()} pts
+                      {player.score.toLocaleString()} điểm
                     </span>
                   </div>
                 );
@@ -153,13 +151,13 @@ function SpectatorView({
 
           <div className="spectator-section-heading leaderboard-heading">
             <div>
-              <p className="eyebrow">LIVE STANDINGS</p>
-              <h2>Leaderboard</h2>
+              <p className="eyebrow">XẾP HẠNG TRỰC TIẾP</p>
+              <h2>Bảng xếp hạng</h2>
             </div>
 
             <span className="leaderboard-count">
               <Trophy size={15} aria-hidden="true" />
-              {standings.length} racers
+              {standings.length} tay đua
             </span>
           </div>
 
@@ -186,8 +184,8 @@ function SpectatorView({
                     <strong>{player.name}</strong>
 
                     <span>
-                      {player.correctAnswersCount} correct ·{" "}
-                      {player.hasAnswered ? "Answered" : "Racing"}
+                      {player.correctAnswersCount} câu đúng ·{" "}
+                      {player.hasAnswered ? "Đã trả lời" : "Đang đua"}
                     </span>
                   </span>
 
@@ -195,13 +193,13 @@ function SpectatorView({
                     {player.score.toLocaleString()}
                   </strong>
 
-                  <span className="spectator-score-label">PTS</span>
+                  <span className="spectator-score-label">ĐIỂM</span>
                 </li>
               ))}
             </ol>
           ) : (
             <p className="spectator-empty-copy">
-              Players will appear here when they join the race.
+              Người chơi sẽ xuất hiện tại đây sau khi tham gia phòng.
             </p>
           )}
         </section>

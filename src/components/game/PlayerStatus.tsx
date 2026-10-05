@@ -24,7 +24,7 @@ function PlayerStatus({ player }: PlayerStatusProps) {
 
       <div>
         <strong>{player.name}</strong>
-        <span>{player.correctAnswersCount} correct</span>
+        <span>{player.correctAnswersCount} câu đúng</span>
       </div>
     </div>
   );

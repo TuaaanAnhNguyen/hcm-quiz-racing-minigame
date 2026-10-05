@@ -30,6 +30,7 @@ interface GameStore extends GameSession {
   pauseGame: () => void;
   resumeGame: () => void;
   submitAnswer: (playerId: string, answerIndex: number) => void;
+  revealQuestion: () => void;
   timeExpired: () => void;
   nextQuestion: () => void;
   skipQuestion: () => void;
@@ -137,6 +138,8 @@ export const useGameStore = create<GameStore>((set, get) => {
         broadcast("PLAYER_ANSWER", { playerId, answerIndex });
       }
     },
+
+    revealQuestion: () => applyEvent({ type: "REVEAL_QUESTION" }),
 
     timeExpired: () => applyEvent({ type: "TIME_EXPIRED" }),
 

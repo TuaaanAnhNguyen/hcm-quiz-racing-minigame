@@ -42,32 +42,62 @@ function startQuestion(session: GameSession, now: number): GameSession {
  * - stops the timer
  * - changes the state to QUESTION_RESULT
  */
-function revealQuestion(session: GameSession): GameSession {
+function settleCurrentAnswers(
+  session: GameSession,
+  recordUnanswered: boolean,
+): GameSession {
   const question = session.questions[session.currentQuestionIndex];
 
   if (!question) {
     return session;
   }
 
-  const unansweredRecords = session.players
-    .filter((player) => !player.hasAnswered)
-    .map(
-      (player): AnswerRecord => ({
-        playerId: player.id,
-        questionId: question.id,
-        selectedIndex: null,
-        correct: false,
-        scoreEarned: 0,
-        timeLeft: 0,
-      }),
+  const unansweredRecords = recordUnanswered
+    ? session.players
+        .filter((player) => !player.hasAnswered)
+        .map(
+          (player): AnswerRecord => ({
+            playerId: player.id,
+            questionId: question.id,
+            selectedIndex: null,
+            correct: false,
+            scoreEarned: 0,
+            timeLeft: 0,
+          }),
+        )
+    : [];
+
+  const answerHistory = [...session.answerHistory, ...unansweredRecords];
+  const players = session.players.map((player) => {
+    const answer = answerHistory.find(
+      (record) =>
+        record.playerId === player.id && record.questionId === question.id,
     );
 
+    if (!answer || answer.selectedIndex === null) {
+      return player;
+    }
+
+    return {
+      ...player,
+      score: player.score + answer.scoreEarned,
+      correctAnswersCount:
+        player.correctAnswersCount + (answer.correct ? 1 : 0),
+      lastAnswerCorrect: answer.correct,
+    };
+  });
+
+  return { ...session, players, answerHistory };
+}
+
+function revealQuestion(session: GameSession): GameSession {
+  const settled = settleCurrentAnswers(session, true);
+
   return {
-    ...session,
+    ...settled,
     status: GameState.QUESTION_RESULT,
     questionStartedAt: null,
     pausedAt: null,
-    answerHistory: [...session.answerHistory, ...unansweredRecords],
   };
 }
 
@@ -125,34 +155,7 @@ function advanceQuestion(session: GameSession, now: number): GameSession {
  * This can later be used by an admin "Skip Question" control.
  */
 function skipQuestion(session: GameSession, now: number): GameSession {
-  const question = session.questions[session.currentQuestionIndex];
-
-  const answerHistory =
-    question === undefined
-      ? session.answerHistory
-      : [
-          ...session.answerHistory,
-          ...session.players
-            .filter((player) => !player.hasAnswered)
-            .map(
-              (player): AnswerRecord => ({
-                playerId: player.id,
-                questionId: question.id,
-                selectedIndex: null,
-                correct: false,
-                scoreEarned: 0,
-                timeLeft: 0,
-              }),
-            ),
-        ];
-
-  return advanceQuestion(
-    {
-      ...session,
-      answerHistory,
-    },
-    now,
-  );
+  return advanceQuestion(settleCurrentAnswers(session, true), now);
 }
 
 function nextStageIndex(
@@ -231,6 +234,10 @@ export function transition(
       }
 
       const timeLeft = getTimeLeft(session, now);
+      if (timeLeft <= 0) {
+        return session;
+      }
+
       const correct = event.answerIndex === question.correctIndex;
 
       const scoreEarned = calculateScore({
@@ -252,21 +259,11 @@ export function transition(
 
       const players = session.players.map((candidate) =>
         candidate.id === event.playerId
-          ? {
-              ...candidate,
-              hasAnswered: true,
-              score: candidate.score + scoreEarned,
-              correctAnswersCount:
-                candidate.correctAnswersCount + (correct ? 1 : 0),
-              lastAnswerCorrect: correct,
-            }
+          ? { ...candidate, hasAnswered: true }
           : candidate,
       );
 
       // IMPORTANT:
-      // Answering no longer finishes the question.
-      // The timer continues running until TIME_EXPIRED
-      // or REVEAL_QUESTION is triggered.
       return {
         ...session,
         players,
@@ -305,25 +302,26 @@ export function transition(
         return session;
       }
 
-      const next = nextStageIndex(session);
+      const settled = settleCurrentAnswers(session, false);
+      const next = nextStageIndex(settled);
 
       return next === null
         ? {
-            ...session,
+          ...settled,
             status: GameState.STAGE_TRANSITION,
             questionStartedAt: null,
             pausedAt: null,
             pendingStage: null,
           }
         : {
-            ...session,
+            ...settled,
             status: GameState.STAGE_TRANSITION,
             stage: next.stage,
             currentQuestionIndex: next.index,
             questionStartedAt: null,
             pausedAt: null,
             pendingStage: next.stage,
-            players: resetPlayers(session.players),
+            players: resetPlayers(settled.players),
           };
     }
 
