@@ -217,7 +217,7 @@ function GamePage() {
             <h1>{STAGE_NAMES[stage] ?? `Chặng ${stage}`}</h1>
           </div>
 
-          <div className="game-header-controls">
+          {/* <div className="game-header-controls">
             <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
 
             <button
@@ -228,7 +228,7 @@ function GamePage() {
               <Eye size={16} aria-hidden="true" />
               Bảng đua trực tiếp
             </button>
-          </div>
+          </div> */}
         </header>
 
         <div className="player-game-layout">

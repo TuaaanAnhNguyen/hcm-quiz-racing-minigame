@@ -13,8 +13,6 @@ function HostSetupPage() {
 
     const { adminToken } = createHostRoom();
 
-    // A full navigation reloads the app and initializes the store
-    // using the new host URL.
     window.location.href = `/host/${adminToken}`;
   };
 

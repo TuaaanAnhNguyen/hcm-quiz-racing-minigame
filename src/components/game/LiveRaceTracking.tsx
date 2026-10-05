@@ -58,21 +58,24 @@ function LiveRaceTrack({
     const scoreRange = maxScore - minScore;
 
     const overallProgress = Math.min(100, Math.max(0, raceProgress));
+    const normalizedProgress = overallProgress / 100;
 
-    // Keep a generous gap between cars and the finish line.
-    // The track only reaches its final section when the game is nearly over.
-    const baseProgress = 6 + (overallProgress / 100) * 72;
+    // Slow early progress, then approach the finish more quickly.
+    const easedProgress = Math.pow(normalizedProgress, 1.6);
+
+    // Position ranges from 6% at the start to 94% near the finish.
+    const baseProgress = 6 + easedProgress * 88;
 
     return new Map(
       players.map((player) => {
         const scorePosition =
           scoreRange === 0 ? 0.5 : (player.score - minScore) / scoreRange;
 
-        // Score changes position slightly, without overtaking overall race progress.
-        const scoreOffset = (scorePosition - 0.5) * 5;
+        // Scores influence position, but never dominate race progress.
+        const scoreOffset = (scorePosition - 0.5) * 3;
 
-        // Hard limit: cars never get closer than 15% to the finish end.
-        const progress = Math.min(82, Math.max(3, baseProgress + scoreOffset));
+        // Keep a small gap at the finish line.
+        const progress = Math.min(94, Math.max(3, baseProgress + scoreOffset));
 
         return [player.id, progress];
       }),
