@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { Eye } from "lucide-react";
-import Timer from "../components/Timer";
+// import { Eye } from "lucide-react";
+// import Timer from "../components/Timer";
 import SpectatorView from "../components/game/SpectatorView";
 import LiveRacePanel from "./LiveRacePanel";
 import { useGameStore } from "../store/useGameStore";
@@ -57,7 +57,7 @@ function GamePage() {
         )
       : undefined;
 
-  const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
+  // const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
 
   const handleExpire = useCallback(() => {}, []);
 
