@@ -43,7 +43,7 @@ $$\text{BaseScore} + \left\lfloor \text{BaseScore} \times \frac{\text{TimeLeft}}
 - [x] Racing car selection
 - [x] Quiz question card & answer inputs
 - [x] Answer feedback & real-time scoring
-- [-] Live racing track progress (Needs to be rework into vertical view due to vertical sprites + side-by-side with question view; 70% question, 30% live track)
+- [x] Live racing track progress
 - [x] Four-stage game progression
 - [x] Final podium & recap explanations
 

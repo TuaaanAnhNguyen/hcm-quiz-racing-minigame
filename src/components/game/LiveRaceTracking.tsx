@@ -59,18 +59,20 @@ function LiveRaceTrack({
 
     const overallProgress = Math.min(100, Math.max(0, raceProgress));
 
-    // Keep cars on the track before the finish, even for very high scores.
-    const baseProgress =
-      overallProgress >= 100 ? 94 : 6 + (overallProgress / 100) * 82;
+    // Keep a generous gap between cars and the finish line.
+    // The track only reaches its final section when the game is nearly over.
+    const baseProgress = 6 + (overallProgress / 100) * 72;
 
     return new Map(
       players.map((player) => {
         const scorePosition =
           scoreRange === 0 ? 0.5 : (player.score - minScore) / scoreRange;
 
-        // Only a small score-based spread; stage/question progress remains primary.
-        const scoreOffset = (scorePosition - 0.5) * 7;
-        const progress = Math.min(96, Math.max(3, baseProgress + scoreOffset));
+        // Score changes position slightly, without overtaking overall race progress.
+        const scoreOffset = (scorePosition - 0.5) * 5;
+
+        // Hard limit: cars never get closer than 15% to the finish end.
+        const progress = Math.min(82, Math.max(3, baseProgress + scoreOffset));
 
         return [player.id, progress];
       }),
@@ -183,13 +185,18 @@ function LiveRaceTrack({
             <div className="live-race-checkerboard" />
           </div>
 
-          <div className="live-race-milestone milestone-one">
-            <span>CHẶNG 3</span>
-          </div>
-
-          <div className="live-race-milestone milestone-two">
-            <span>CHẶNG 2</span>
-          </div>
+          <div
+            className="live-race-stage-divider stage-divider-one"
+            aria-hidden="true"
+          />
+          <div
+            className="live-race-stage-divider stage-divider-two"
+            aria-hidden="true"
+          />
+          <div
+            className="live-race-stage-divider stage-divider-three"
+            aria-hidden="true"
+          />
 
           {visiblePlayers.map((racer) => {
             const rank = rankedPlayers.findIndex(
