@@ -1128,8 +1128,6 @@ button {
   font-weight: 700;
 }
 
-/* Start, finish and checkpoints are decorative overlays. */
-
 .live-race-finish,
 .live-race-start {
   position: absolute;
@@ -1173,31 +1171,28 @@ button {
   background-size: 8px 8px;
 }
 
-.live-race-milestone {
+.live-race-stage-divider {
   position: absolute;
-  right: 0;
   left: 0;
-  z-index: 2;
-  display: flex;
-  justify-content: flex-end;
+  right: 0;
+  height: 5px;
+  z-index: 3;
   pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
-.live-race-milestone span {
-  padding: 3px 5px;
-  color: #d4d4d8;
-  background: #252a2ddd;
-  border-radius: 3px 0 0 3px;
-  font-size: 8px;
-  letter-spacing: 0.04em;
+.stage-divider-one {
+  top: 25%;
 }
 
-.milestone-one {
-  top: 36%;
+.stage-divider-two {
+  top: 50%;
 }
 
-.milestone-two {
-  top: 68%;
+.stage-divider-three {
+  top: 75%;
 }
 
 .live-race-panel-footer {
@@ -1744,13 +1739,11 @@ button {
   }
 }
 
-/* Cars glide instead of jumping when the race position changes. */
 .live-race-car {
   transition: top 700ms ease-in-out;
   will-change: top;
 }
 
-/* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
 
   .live-race-road::before,
@@ -1763,7 +1756,6 @@ button {
   }
 }
 
-/* Score displayed beneath each car in the live track */
 .live-race-score-label {
   display: block;
   width: max-content;
@@ -1782,12 +1774,10 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-/* Animate cars as standings change */
 .live-race-car {
   transition: top 700ms ease-in-out;
 }
 
-/* Keep the question and track columns aligned on result screens too */
 .player-game-layout {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(235px, 3fr);
