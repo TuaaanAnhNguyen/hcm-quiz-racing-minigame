@@ -51,31 +51,37 @@ function LiveRaceTrack({
 
   // The question/stage controls the overall race position.
   // Scores only move players a little forward or backward around that position.
+
   const progressByPlayer = useMemo(() => {
+    const overallProgress = Math.min(100, Math.max(0, raceProgress));
+
     const scores = players.map((player) => player.score);
     const minScore = Math.min(0, ...scores);
     const maxScore = Math.max(0, ...scores);
     const scoreRange = maxScore - minScore;
 
-    const overallProgress = Math.min(100, Math.max(0, raceProgress));
-    const normalizedProgress = overallProgress / 100;
-
-    // Slow early progress, then approach the finish more quickly.
-    const easedProgress = Math.pow(normalizedProgress, 1.6);
-
-    // Position ranges from 6% at the start to 94% near the finish.
-    const baseProgress = 6 + easedProgress * 88;
+    // Race progress determines the main position.
+    // The final position is deliberately close to the finish line.
+    const baseProgress =
+      overallProgress >= 100
+        ? 97
+        : 6 + Math.pow(overallProgress / 100, 1.6) * 89;
 
     return new Map(
       players.map((player) => {
         const scorePosition =
           scoreRange === 0 ? 0.5 : (player.score - minScore) / scoreRange;
 
-        // Scores influence position, but never dominate race progress.
-        const scoreOffset = (scorePosition - 0.5) * 3;
+        // Keep score-based differences small.
+        const scoreOffset =
+          overallProgress >= 100
+            ? (scorePosition - 0.5) * 2
+            : (scorePosition - 0.5) * 3;
 
-        // Keep a small gap at the finish line.
-        const progress = Math.min(94, Math.max(3, baseProgress + scoreOffset));
+        const progress =
+          overallProgress >= 100
+            ? 97 + scoreOffset
+            : Math.min(94, Math.max(3, baseProgress + scoreOffset));
 
         return [player.id, progress];
       }),

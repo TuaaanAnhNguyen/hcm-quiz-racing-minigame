@@ -21,24 +21,34 @@ function LiveRacePanel({ players, playerId }: LiveRacePanelProps) {
     (state) => state.stageQuestionCounts,
   );
   const pendingStage = useGameStore((state) => state.pendingStage);
-
   const safeStageQuestionCount = Math.max(stageQuestionCounts[stage], 1);
   const stageStartIndex = getStageStartIndex(stage, stageQuestionCounts);
 
-  let completedQuestions = currentQuestionIndex - stageStartIndex;
+  let raceProgress: number;
 
-  if (status === GameState.QUESTION_RESULT) {
-    completedQuestions += 1;
+  if (
+    status === GameState.SUMMARY ||
+    (status === GameState.STAGE_TRANSITION && pendingStage === null)
+  ) {
+    // The race is finished.
+    raceProgress = 100;
+  } else if (status === GameState.STAGE_TRANSITION) {
+    // Move to the end of the current stage.
+    raceProgress = (stage / 4) * 100;
+  } else {
+    let completedQuestions = currentQuestionIndex - stageStartIndex;
+
+    if (status === GameState.QUESTION_RESULT) {
+      completedQuestions += 1;
+    }
+
+    const stageProgress = Math.min(
+      1,
+      Math.max(0, completedQuestions / safeStageQuestionCount),
+    );
+
+    raceProgress = ((stage - 1 + stageProgress) / 4) * 100;
   }
-
-  let raceProgress =
-    (stage - 1 + completedQuestions / safeStageQuestionCount) / 4;
-
-  if (status === GameState.STAGE_TRANSITION) {
-    raceProgress = pendingStage === null ? 1 : Math.min(1, stage / 4);
-  }
-
-  raceProgress = Math.min(1, Math.max(0, raceProgress)) * 100;
 
   return (
     <LiveRaceTrack
