@@ -10,11 +10,14 @@ type TrackView = "focus" | "overview";
 interface LiveRaceTrackProps {
   players: Player[];
   playerId: string;
+  raceProgress: number;
 }
 
-const DEMO_PROGRESS = [24, 37, 45, 53, 62, 70, 79, 87];
-
-function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
+function LiveRaceTrack({
+  players,
+  playerId,
+  raceProgress,
+}: LiveRaceTrackProps) {
   const [view, setView] = useState<TrackView>("focus");
   const [zoom, setZoom] = useState(1);
 
@@ -136,9 +139,6 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
               (player) => player.id === racer.id,
             );
 
-            const progress =
-              DEMO_PROGRESS[Math.max(0, originalIndex) % DEMO_PROGRESS.length];
-
             const isMe = racer.id === playerId;
 
             const car = CAR_OPTIONS.find(
@@ -156,8 +156,10 @@ function LiveRaceTrack({ players, playerId }: LiveRaceTrackProps) {
 
                 <div
                   className={`live-race-car ${isMe ? "live-race-car-me" : ""}`}
-                  style={{ top: `${100 - progress}%` }}
-                  title={`${racer.name} — demo position`}
+                  style={{
+                    top: `${100 - raceProgress}%`,
+                  }}
+                  title={`${racer.name} — race progress ${Math.round(raceProgress)}%`}
                 >
                   {car ? (
                     <img src={car.image} alt={car.name} />

@@ -1,3 +1,5 @@
+// src/game/stages.ts
+
 import type { StageNumber } from "../types/game";
 
 export const STAGE_DIFFICULTY: Record<StageNumber, "easy" | "medium" | "hard"> = {

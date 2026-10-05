@@ -22,8 +22,8 @@ function HostSetupPage() {
     <main className="transition-page">
       <section className="transition-card">
         <p className="eyebrow">HCM QUIZ RACING</p>
-        <h1>Host a race</h1>
-        <p>Create a room and invite your players to join.</p>
+        <h1>Tạo cuộc đua</h1>
+        <p>Tạo phòng và mời người chơi tham gia.</p>
 
         <button
           type="button"
@@ -31,7 +31,7 @@ function HostSetupPage() {
           onClick={handleCreateRoom}
           disabled={creating}
         >
-          {creating ? "Creating room..." : "Create room"}
+          {creating ? "Đang tạo phòng..." : "Tạo phòng"}
         </button>
       </section>
     </main>

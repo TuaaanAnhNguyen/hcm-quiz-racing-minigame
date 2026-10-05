@@ -17,7 +17,17 @@ export function organizeQuestionsByStage(
   questions: Question[],
   questionsPerStage: number,
 ): Question[] {
-  return ([1, 2, 3, 4] as StageNumber[]).flatMap((stage) =>
-    selectQuestionsForStage(questions, stage, questionsPerStage),
-  );
+  const firstStage = selectQuestionsForStage(questions, 1, questionsPerStage);
+  const secondStage = selectQuestionsForStage(questions, 2, questionsPerStage);
+  const thirdStage = selectQuestionsForStage(questions, 3, questionsPerStage);
+  const usedMediumQuestionIds = new Set(secondStage.map((question) => question.id));
+  const fourthStage = questions
+    .filter(
+      (question) =>
+        question.difficulty === STAGE_DIFFICULTY[4] &&
+        !usedMediumQuestionIds.has(question.id),
+    )
+    .slice(0, questionsPerStage);
+
+  return [...firstStage, ...secondStage, ...thirdStage, ...fourthStage];
 }
