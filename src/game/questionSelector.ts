@@ -1,33 +1,44 @@
 // src/game/questionSelector.ts
 
-import type { Question, StageNumber } from "../types/game";
+import type {
+  Question,
+  StageNumber,
+  StageQuestionCounts,
+} from "../types/game";
 import { STAGE_DIFFICULTY } from "./stages";
 
 export function selectQuestionsForStage(
   questions: Question[],
   stage: StageNumber,
-  questionsPerStage: number,
+  questionCount: number,
+  excludedQuestionIds: ReadonlySet<string> = new Set(),
 ): Question[] {
   return questions
-    .filter((question) => question.difficulty === STAGE_DIFFICULTY[stage])
-    .slice(0, questionsPerStage);
+    .filter(
+      (question) =>
+        question.difficulty === STAGE_DIFFICULTY[stage] &&
+        !excludedQuestionIds.has(question.id),
+    )
+    .slice(0, questionCount);
 }
 
 export function organizeQuestionsByStage(
   questions: Question[],
-  questionsPerStage: number,
+  stageQuestionCounts: StageQuestionCounts,
 ): Question[] {
-  const firstStage = selectQuestionsForStage(questions, 1, questionsPerStage);
-  const secondStage = selectQuestionsForStage(questions, 2, questionsPerStage);
-  const thirdStage = selectQuestionsForStage(questions, 3, questionsPerStage);
-  const usedMediumQuestionIds = new Set(secondStage.map((question) => question.id));
-  const fourthStage = questions
-    .filter(
-      (question) =>
-        question.difficulty === STAGE_DIFFICULTY[4] &&
-        !usedMediumQuestionIds.has(question.id),
-    )
-    .slice(0, questionsPerStage);
+  const selected: Question[] = [];
+  const usedQuestionIds = new Set<string>();
 
-  return [...firstStage, ...secondStage, ...thirdStage, ...fourthStage];
+  for (const stage of [1, 2, 3, 4] as const) {
+    const stageQuestions = selectQuestionsForStage(
+      questions,
+      stage,
+      stageQuestionCounts[stage],
+      usedQuestionIds,
+    );
+    selected.push(...stageQuestions);
+    stageQuestions.forEach((question) => usedQuestionIds.add(question.id));
+  }
+
+  return selected;
 }

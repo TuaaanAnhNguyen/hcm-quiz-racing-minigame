@@ -10,7 +10,7 @@ import type {
 } from "../types/game";
 import { GameState } from "../types/game";
 import { calculateScore } from "./scoring";
-import { getStageForQuestionIndex } from "./stages";
+import { getStageForQuestionIndex, getStageStartIndex } from "./stages";
 import { getTimeLeft } from "./timer";
 
 function resetPlayers(players: Player[]): Player[] {
@@ -121,7 +121,7 @@ function advanceQuestion(session: GameSession, now: number): GameSession {
 
   const nextStage = getStageForQuestionIndex(
     nextIndex,
-    session.questionsPerStage,
+    session.stageQuestionCounts,
   );
 
   // The next question belongs to a new stage.
@@ -170,7 +170,7 @@ function nextStageIndex(
     index:
       stage === 1
         ? 0
-        : stage * session.questionsPerStage - session.questionsPerStage,
+        : getStageStartIndex(stage, session.stageQuestionCounts),
   };
 }
 
@@ -181,7 +181,14 @@ export function transition(
 ): GameSession {
   switch (event.type) {
     case "START_GAME":
-      return session.status === GameState.LOBBY && session.questions.length > 0
+      return session.status === GameState.LOBBY &&
+        session.questions.length > 0 &&
+        Object.values(session.stageQuestionCounts).every((count) => count > 0) &&
+        session.questions.length ===
+          Object.values(session.stageQuestionCounts).reduce(
+            (total, count) => total + count,
+            0,
+          )
         ? startQuestion(
             {
               ...session,
@@ -357,6 +364,7 @@ export function createGameSession(
   options: {
     totalTime?: number;
     questionsPerStage?: number;
+    stageQuestionCounts?: GameSession["stageQuestionCounts"];
     players?: Player[];
   } = {},
 ): GameSession {
@@ -364,7 +372,16 @@ export function createGameSession(
     status: GameState.LOBBY,
     stage: 1,
     questions,
-    questionsPerStage: options.questionsPerStage ?? 2,
+    stageQuestionCounts:
+      options.stageQuestionCounts ??
+      (options.questionsPerStage
+        ? {
+            1: options.questionsPerStage,
+            2: options.questionsPerStage,
+            3: options.questionsPerStage,
+            4: options.questionsPerStage,
+          }
+        : { 1: 5, 2: 5, 3: 5, 4: 5 }),
     currentQuestionIndex: 0,
     questionStartedAt: null,
     totalTime: options.totalTime ?? 15,

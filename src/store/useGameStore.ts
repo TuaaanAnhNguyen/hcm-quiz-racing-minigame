@@ -12,7 +12,10 @@ import {
   type GameSession,
   type Player,
   type Question,
+  type StageNumber,
+  type StageQuestionCounts,
 } from "../types/game";
+import { DEFAULT_STAGE_QUESTION_COUNTS } from "../game/stages";
 
 const roomRoute = getRoomRoute();
 const roomCode = roomRoute.roomCode;
@@ -24,8 +27,11 @@ type ConnectionStatus = "connecting" | "connected" | "offline" | "error";
 interface GameStore extends GameSession {
   isAdmin: boolean;
   connectionStatus: ConnectionStatus;
+  availableQuestionCounts: StageQuestionCounts;
+  questionsLoaded: boolean;
 
   startGame: () => void;
+  setStageQuestionCount: (stage: StageNumber, count: number) => void;
 
   pauseGame: () => void;
   resumeGame: () => void;
@@ -40,7 +46,7 @@ interface GameStore extends GameSession {
   registerPlayer: (name: string, carSprite: string, id: string) => string;
   loadCustomQuestions: (
     questions: Question[],
-    questionsPerStage?: number,
+    stageQuestionCounts?: StageQuestionCounts,
   ) => void;
   getTimeRemaining: (now?: number) => number;
 
@@ -50,15 +56,24 @@ interface GameStore extends GameSession {
 }
 
 const initialSession = createGameSession([], {
-  questionsPerStage: 2,
+  stageQuestionCounts: DEFAULT_STAGE_QUESTION_COUNTS,
 });
+
+function getAvailableQuestionCounts(questions: Question[]): StageQuestionCounts {
+  return {
+    1: questions.filter((question) => question.difficulty === "easy").length,
+    2: questions.filter((question) => question.difficulty === "medium").length,
+    3: questions.filter((question) => question.difficulty === "hard").length,
+    4: questions.filter((question) => question.difficulty === "medium").length,
+  };
+}
 
 function getSession(store: GameStore): GameSession {
   return {
     status: store.status,
     stage: store.stage,
     questions: store.questions,
-    questionsPerStage: store.questionsPerStage,
+    stageQuestionCounts: store.stageQuestionCounts,
     currentQuestionIndex: store.currentQuestionIndex,
     questionStartedAt: store.questionStartedAt,
     totalTime: store.totalTime,
@@ -72,6 +87,7 @@ function getSession(store: GameStore): GameSession {
 
 export const useGameStore = create<GameStore>((set, get) => {
   let realtimeReady = false;
+  let questionBank: Question[] = [];
 
   const broadcast = (event: string, payload: unknown) => {
     if (realtimeReady) {
@@ -124,8 +140,36 @@ export const useGameStore = create<GameStore>((set, get) => {
     isAdmin: isAdminClient,
     connectionStatus:
       isSupabaseConfigured && realtimeRoom ? "connecting" : "offline",
+    availableQuestionCounts: { 1: 0, 2: 0, 3: 0, 4: 0 },
+    questionsLoaded: false,
 
     startGame: () => applyEvent({ type: "START_GAME" }),
+
+    setStageQuestionCount: (stage: StageNumber, count: number) => {
+      const current = get();
+      if (!isAdminClient || current.status !== GameState.LOBBY) return;
+      if (!Number.isInteger(count) || count < 1) return;
+
+      const stageQuestionCounts = {
+        ...current.stageQuestionCounts,
+        [stage]: count,
+      };
+      const available = current.availableQuestionCounts;
+      if (
+        stageQuestionCounts[1] > available[1] ||
+        stageQuestionCounts[3] > available[3] ||
+        stageQuestionCounts[2] + stageQuestionCounts[4] > available[2]
+      ) {
+        return;
+      }
+
+      const nextSession = createGameSession(
+        organizeQuestionsByStage(questionBank, stageQuestionCounts),
+        { stageQuestionCounts, players: current.players },
+      );
+      set(nextSession);
+      sync(nextSession);
+    },
 
     pauseGame: () => applyEvent({ type: "PAUSE_GAME" }),
 
@@ -157,13 +201,21 @@ export const useGameStore = create<GameStore>((set, get) => {
       if (!isAdminClient) return;
 
       try {
-        const questions = await fetchQuestions();
+        questionBank = await fetchQuestions();
+        const availableQuestionCounts = getAvailableQuestionCounts(questionBank);
         const nextSession = createGameSession(
-          organizeQuestionsByStage(questions, 2),
-          { questionsPerStage: 2 },
+          organizeQuestionsByStage(
+            questionBank,
+            DEFAULT_STAGE_QUESTION_COUNTS,
+          ),
+          { stageQuestionCounts: DEFAULT_STAGE_QUESTION_COUNTS },
         );
 
-        set(nextSession);
+        set({
+          ...nextSession,
+          availableQuestionCounts,
+          questionsLoaded: true,
+        });
         sync(nextSession);
       } catch (error) {
         console.error("Failed to load questions:", error);
@@ -189,14 +241,23 @@ export const useGameStore = create<GameStore>((set, get) => {
       return id;
     },
 
-    loadCustomQuestions: (questions: Question[], questionsPerStage = 2) => {
+    loadCustomQuestions: (
+      questions: Question[],
+      stageQuestionCounts = DEFAULT_STAGE_QUESTION_COUNTS,
+    ) => {
       if (!isAdminClient) return;
 
+      questionBank = questions;
+      const availableQuestionCounts = getAvailableQuestionCounts(questionBank);
       const nextSession = createGameSession(
-        organizeQuestionsByStage(questions, questionsPerStage),
-        { questionsPerStage },
+        organizeQuestionsByStage(questionBank, stageQuestionCounts),
+        { stageQuestionCounts },
       );
-      set(nextSession);
+      set({
+        ...nextSession,
+        availableQuestionCounts,
+        questionsLoaded: true,
+      });
       sync(nextSession);
     },
 

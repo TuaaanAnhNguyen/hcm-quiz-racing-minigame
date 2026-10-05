@@ -1,9 +1,14 @@
 // src/components/game/SpectatorView.tsx
 
 import { ArrowLeft, Trophy, Users } from "lucide-react";
-import type { Player, StageNumber } from "../../types/game";
+import type {
+  Player,
+  StageNumber,
+  StageQuestionCounts,
+} from "../../types/game";
 import Timer from "../Timer";
 import { CAR_OPTIONS } from "../../data/cars";
+import { getStageStartIndex } from "../../game/stages";
 
 const STAGE_NAMES: Record<StageNumber, string> = {
   1: "Khởi động",
@@ -22,7 +27,7 @@ const TRACK_NAMES: Record<StageNumber, string> = {
 interface SpectatorViewProps {
   stage: StageNumber;
   currentQuestionIndex: number;
-  questionsPerStage: number;
+  stageQuestionCounts: StageQuestionCounts;
   players: Player[];
   isPaused: boolean;
   showTimer: boolean;
@@ -34,7 +39,7 @@ interface SpectatorViewProps {
 function SpectatorView({
   stage,
   currentQuestionIndex,
-  questionsPerStage,
+  stageQuestionCounts,
   players,
   isPaused,
   showTimer,
@@ -52,7 +57,8 @@ function SpectatorView({
   const lowestScore = standings.at(-1)?.score ?? 0;
   const highestScore = standings[0]?.score ?? 0;
 
-  const stageQuestion = (currentQuestionIndex % questionsPerStage) + 1;
+  const stageStartIndex = getStageStartIndex(stage, stageQuestionCounts);
+  const stageQuestion = currentQuestionIndex - stageStartIndex + 1;
 
   return (
     <>
@@ -67,7 +73,7 @@ function SpectatorView({
             </h1>
 
             <p className="spectator-subtitle">
-              Câu {stageQuestion}/{questionsPerStage} · {standings.length} tay đua
+              Câu {stageQuestion}/{stageQuestionCounts[stage]} · {standings.length} tay đua
             </p>
           </div>
 

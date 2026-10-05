@@ -3,6 +3,7 @@ import { createGameSession, transition } from "./gameReducer";
 import { calculateScore } from "./scoring";
 import { getTimeLeft } from "./timer";
 import { organizeQuestionsByStage } from "./questionSelector";
+import { getStageForQuestionIndex, getStageStartIndex } from "./stages";
 import { GameState, type Player, type Question } from "../types/game";
 
 const questions: Question[] = [1, 2, 3, 4].map((stage) => ({
@@ -37,6 +38,51 @@ describe("calculateScore", () => {
 });
 
 describe("game state machine", () => {
+  it("does not start when the selected question bank is incomplete", () => {
+    const incomplete = createGameSession(questions, {
+      stageQuestionCounts: { 1: 2, 2: 1, 3: 1, 4: 1 },
+      players: [player("a")],
+    });
+
+    expect(transition(incomplete, { type: "START_GAME" }, 0)).toBe(incomplete);
+  });
+
+  it("uses cumulative boundaries for stages with different question counts", () => {
+    const stageQuestionCounts = { 1: 2, 2: 1, 3: 2, 4: 2 } as const;
+    const unevenQuestions: Question[] = [
+      { ...questions[0], id: "easy-1" },
+      { ...questions[0], id: "easy-2" },
+      { ...questions[1], id: "medium-1" },
+      { ...questions[2], id: "hard-1" },
+      { ...questions[2], id: "hard-2" },
+      { ...questions[3], id: "medium-2" },
+      { ...questions[3], id: "medium-3" },
+    ];
+    let state = createGameSession(unevenQuestions, {
+      stageQuestionCounts,
+      players: [player("a")],
+    });
+
+    state = transition(state, { type: "START_GAME" }, 0);
+    for (const expectedStage of [1, 1, 2, 3, 3, 4, 4] as const) {
+      expect(state.stage).toBe(expectedStage);
+      state = transition(state, { type: "REVEAL_QUESTION" }, 1000);
+      state = transition(state, { type: "NEXT_QUESTION" }, 1001);
+      if (
+        state.status === GameState.STAGE_TRANSITION &&
+        state.pendingStage !== null
+      ) {
+        state = transition(state, { type: "CONTINUE_STAGE" }, 1002);
+      }
+    }
+
+    expect(state.status).toBe(GameState.STAGE_TRANSITION);
+    expect(getStageForQuestionIndex(2, stageQuestionCounts)).toBe(2);
+    expect(getStageForQuestionIndex(3, stageQuestionCounts)).toBe(3);
+    expect(getStageForQuestionIndex(5, stageQuestionCounts)).toBe(4);
+    expect(getStageStartIndex(4, stageQuestionCounts)).toBe(5);
+  });
+
   it("allows only valid lifecycle transitions", () => {
     const initial = createGameSession(questions, { questionsPerStage: 1, players: [player("a")] });
     expect(transition(initial, { type: "SUBMIT_ANSWER", playerId: "a", answerIndex: 0 }, 0)).toBe(initial);
@@ -86,7 +132,10 @@ describe("game state machine", () => {
   });
 
   it("does not count paused time", () => {
-    const initial = createGameSession(questions, { players: [player("a")] });
+    const initial = createGameSession(questions, {
+      questionsPerStage: 1,
+      players: [player("a")],
+    });
     const playing = transition(initial, { type: "START_GAME" }, 0);
     const paused = transition(playing, { type: "PAUSE_GAME" }, 5000);
     expect(getTimeLeft(paused, 10000)).toBe(10);
@@ -117,10 +166,39 @@ describe("game state machine", () => {
 
 describe("organizeQuestionsByStage", () => {
   it("uses different medium questions for stages 2 and 4", () => {
-    const organized = organizeQuestionsByStage(questions, 1);
+    const organized = organizeQuestionsByStage(questions, {
+      1: 1,
+      2: 1,
+      3: 1,
+      4: 1,
+    });
 
     expect(organized[1].difficulty).toBe("medium");
     expect(organized[3].difficulty).toBe("medium");
     expect(organized[1].id).not.toBe(organized[3].id);
+  });
+
+  it("selects unique questions for both medium-difficulty stages", () => {
+    const bank: Question[] = [
+      ...questions,
+      { ...questions[0], id: "easy-2" },
+      { ...questions[1], id: "medium-2" },
+      { ...questions[1], id: "medium-3" },
+      { ...questions[2], id: "hard-2" },
+    ];
+    const organized = organizeQuestionsByStage(bank, {
+      1: 2,
+      2: 2,
+      3: 2,
+      4: 1,
+    });
+    const questionIds = organized.map((question) => question.id);
+    const mediumQuestionIds = organized
+      .filter((question) => question.difficulty === "medium")
+      .map((question) => question.id);
+
+    expect(organized).toHaveLength(7);
+    expect(new Set(questionIds).size).toBe(questionIds.length);
+    expect(mediumQuestionIds).toHaveLength(3);
   });
 });

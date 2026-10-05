@@ -1,6 +1,7 @@
 // src/types/game.ts
 
 export type StageNumber = 1 | 2 | 3 | 4;
+export type StageQuestionCounts = Record<StageNumber, number>;
 
 export interface StageInfo {
   number: StageNumber;
@@ -55,7 +56,7 @@ export interface GameSession {
   status: GameState;
   stage: StageNumber;
   questions: Question[];
-  questionsPerStage: number;
+  stageQuestionCounts: StageQuestionCounts;
   currentQuestionIndex: number;
   questionStartedAt: number | null;
   totalTime: number;

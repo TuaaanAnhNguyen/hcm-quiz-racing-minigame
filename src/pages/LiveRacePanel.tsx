@@ -4,6 +4,7 @@ import type { Player } from "../types/game";
 import { GameState } from "../types/game";
 import { useGameStore } from "../store/useGameStore";
 import LiveRaceTrack from "../components/game/LiveRaceTracking";
+import { getStageStartIndex } from "../game/stages";
 
 interface LiveRacePanelProps {
   players: Player[];
@@ -16,19 +17,22 @@ function LiveRacePanel({ players, playerId }: LiveRacePanelProps) {
   const currentQuestionIndex = useGameStore(
     (state) => state.currentQuestionIndex,
   );
-  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
+  const stageQuestionCounts = useGameStore(
+    (state) => state.stageQuestionCounts,
+  );
   const pendingStage = useGameStore((state) => state.pendingStage);
 
-  const safeQuestionsPerStage = Math.max(questionsPerStage, 1);
+  const safeStageQuestionCount = Math.max(stageQuestionCounts[stage], 1);
+  const stageStartIndex = getStageStartIndex(stage, stageQuestionCounts);
 
-  let completedQuestions = currentQuestionIndex;
+  let completedQuestions = currentQuestionIndex - stageStartIndex;
 
   if (status === GameState.QUESTION_RESULT) {
     completedQuestions += 1;
   }
 
   let raceProgress =
-    (stage - 1 + completedQuestions / safeQuestionsPerStage) / 4;
+    (stage - 1 + completedQuestions / safeStageQuestionCount) / 4;
 
   if (status === GameState.STAGE_TRANSITION) {
     raceProgress = pendingStage === null ? 1 : Math.min(1, stage / 4);

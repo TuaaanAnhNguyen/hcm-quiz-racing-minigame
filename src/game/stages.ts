@@ -1,6 +1,6 @@
 // src/game/stages.ts
 
-import type { StageNumber } from "../types/game";
+import type { StageNumber, StageQuestionCounts } from "../types/game";
 
 export const STAGE_DIFFICULTY: Record<StageNumber, "easy" | "medium" | "hard"> = {
   1: "easy",
@@ -10,11 +10,37 @@ export const STAGE_DIFFICULTY: Record<StageNumber, "easy" | "medium" | "hard"> =
 };
 
 export const DEFAULT_TOTAL_TIME = 15;
-export const DEFAULT_QUESTIONS_PER_STAGE = 2;
+export const DEFAULT_STAGE_QUESTION_COUNTS: StageQuestionCounts = {
+  1: 5,
+  2: 5,
+  3: 5,
+  4: 5,
+};
 
 export function getStageForQuestionIndex(
   questionIndex: number,
-  questionsPerStage: number,
+  stageQuestionCounts: StageQuestionCounts,
 ): StageNumber {
-  return Math.min(4, Math.floor(questionIndex / questionsPerStage) + 1) as StageNumber;
+  let stageStartIndex = 0;
+
+  for (const stage of [1, 2, 3, 4] as const) {
+    stageStartIndex += stageQuestionCounts[stage];
+    if (questionIndex < stageStartIndex) return stage;
+  }
+
+  return 4;
+}
+
+export function getStageStartIndex(
+  targetStage: StageNumber,
+  stageQuestionCounts: StageQuestionCounts,
+): number {
+  let stageStartIndex = 0;
+
+  for (const stage of [1, 2, 3, 4] as const) {
+    if (stage === targetStage) return stageStartIndex;
+    stageStartIndex += stageQuestionCounts[stage];
+  }
+
+  return stageStartIndex;
 }

@@ -9,6 +9,7 @@ import QuestionCard from "../components/game/QuestionCard";
 import QuestionResult from "../components/game/QuestionResult";
 import PlayerStatus from "../components/game/PlayerStatus";
 import { getRoomRoute } from "../lib/roomRouting";
+import { getStageStartIndex } from "../game/stages";
 
 const STAGE_NAMES: Record<number, string> = {
   1: "Khởi động",
@@ -24,7 +25,9 @@ function GamePage() {
   const currentQuestionIndex = useGameStore(
     (state) => state.currentQuestionIndex,
   );
-  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
+  const stageQuestionCounts = useGameStore(
+    (state) => state.stageQuestionCounts,
+  );
   const pendingStage = useGameStore((state) => state.pendingStage);
   const players = useGameStore((state) => state.players);
   const answerHistory = useGameStore((state) => state.answerHistory);
@@ -63,11 +66,11 @@ function GamePage() {
       return "Chưa có câu hỏi";
     }
 
-    const stageStart = (stage - 1) * questionsPerStage;
+    const stageStart = getStageStartIndex(stage, stageQuestionCounts);
     const questionNumber = currentQuestionIndex - stageStart + 1;
 
-    return `Câu ${questionNumber} / ${questionsPerStage}`;
-  }, [currentQuestion, currentQuestionIndex, questionsPerStage, stage]);
+    return `Câu ${questionNumber} / ${stageQuestionCounts[stage]}`;
+  }, [currentQuestion, currentQuestionIndex, stage, stageQuestionCounts]);
 
   if (spectatorMode) {
     return (
@@ -76,7 +79,7 @@ function GamePage() {
           <SpectatorView
             stage={stage}
             currentQuestionIndex={currentQuestionIndex}
-            questionsPerStage={questionsPerStage}
+            stageQuestionCounts={stageQuestionCounts}
             players={players}
             isPaused={status === GameState.PAUSED}
             showTimer={

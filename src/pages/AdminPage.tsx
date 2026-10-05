@@ -5,6 +5,7 @@ import { Eye, Flag, Play, RotateCcw, SkipForward, Pause, Copy } from "lucide-rea
 import SpectatorView from "../components/game/SpectatorView";
 import { useGameStore } from "../store/useGameStore";
 import { GameState } from "../types/game";
+import type { StageNumber } from "../types/game";
 import { getRoomRoute } from "../lib/roomRouting";
 
 const STATUS_LABELS: Record<GameState, string> = {
@@ -16,6 +17,13 @@ const STATUS_LABELS: Record<GameState, string> = {
   [GameState.SUMMARY]: "Đã kết thúc",
 };
 
+const STAGE_OPTIONS: { number: StageNumber; name: string; difficulty: string }[] = [
+  { number: 1, name: "Khởi động", difficulty: "Dễ" },
+  { number: 2, name: "Tăng tốc", difficulty: "Trung bình" },
+  { number: 3, name: "Thử thách", difficulty: "Khó" },
+  { number: 4, name: "Về đích", difficulty: "Trung bình" },
+];
+
 function AdminPage() {
   const status = useGameStore((state) => state.status);
   const stage = useGameStore((state) => state.stage);
@@ -23,10 +31,17 @@ function AdminPage() {
   const currentQuestionIndex = useGameStore(
     (state) => state.currentQuestionIndex,
   );
-  const questionsPerStage = useGameStore((state) => state.questionsPerStage);
+  const stageQuestionCounts = useGameStore((state) => state.stageQuestionCounts);
+  const availableQuestionCounts = useGameStore(
+    (state) => state.availableQuestionCounts,
+  );
+  const questionsLoaded = useGameStore((state) => state.questionsLoaded);
   const players = useGameStore((state) => state.players);
   const connectionStatus = useGameStore((state) => state.connectionStatus);
   const startGame = useGameStore((state) => state.startGame);
+  const setStageQuestionCount = useGameStore(
+    (state) => state.setStageQuestionCount,
+  );
   const pauseGame = useGameStore((state) => state.pauseGame);
   const resumeGame = useGameStore((state) => state.resumeGame);
   const revealQuestion = useGameStore((state) => state.revealQuestion);
@@ -58,6 +73,20 @@ function AdminPage() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const controlEnabled = connectionStatus === "connected";
+  const selectedQuestionTotal = Object.values(stageQuestionCounts).reduce(
+    (total, count) => total + count,
+    0,
+  );
+  const enoughQuestionsAvailable =
+    stageQuestionCounts[1] <= availableQuestionCounts[1] &&
+    stageQuestionCounts[3] <= availableQuestionCounts[3] &&
+    stageQuestionCounts[2] + stageQuestionCounts[4] <=
+      availableQuestionCounts[2];
+  const canStartGame =
+    questionsLoaded &&
+    enoughQuestionsAvailable &&
+    questions.length === selectedQuestionTotal &&
+    players.length > 0;
 
   return (
     <main className="game-page admin-page">
@@ -132,6 +161,65 @@ function AdminPage() {
           </section>
         )}
 
+        {status === GameState.LOBBY && (
+          <section className="stage-question-settings" aria-labelledby="stage-question-settings-title">
+            <div className="stage-question-settings-heading">
+              <div>
+                <p className="eyebrow">THIẾT LẬP CUỘC ĐUA</p>
+                <h2 id="stage-question-settings-title">Số câu hỏi mỗi chặng</h2>
+              </div>
+              <span>
+                {questionsLoaded
+                  ? `Đã chọn ${selectedQuestionTotal} câu`
+                  : "Đang tải kho câu hỏi..."}
+              </span>
+            </div>
+
+            <div className="stage-question-settings-grid">
+              {STAGE_OPTIONS.map((stageOption) => (
+                <div className="stage-question-setting" key={stageOption.number}>
+                  <label htmlFor={`stage-question-count-${stageOption.number}`}>
+                    <span>Chặng {stageOption.number}: {stageOption.name}</span>
+                    <small>{stageOption.difficulty}</small>
+                  </label>
+                  <div className="stage-question-input-wrap">
+                    <input
+                      id={`stage-question-count-${stageOption.number}`}
+                      type="number"
+                      min={1}
+                      max={availableQuestionCounts[stageOption.number]}
+                      step={1}
+                      value={stageQuestionCounts[stageOption.number]}
+                      disabled={!questionsLoaded}
+                      onChange={(event) => {
+                        const count = Number(event.currentTarget.value);
+                        if (Number.isInteger(count)) {
+                          setStageQuestionCount(stageOption.number, count);
+                        }
+                      }}
+                    />
+                    <span>/ {availableQuestionCounts[stageOption.number]} câu</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {questionsLoaded && (
+              <p
+                className={
+                  enoughQuestionsAvailable
+                    ? "stage-question-settings-note"
+                    : "stage-question-settings-note stage-question-settings-warning"
+                }
+              >
+                {enoughQuestionsAvailable
+                  ? `Chặng 2 và 4 dùng chung ${availableQuestionCounts[2]} câu trung bình; không câu nào bị lặp.`
+                  : `Chặng 2 và 4 cần tổng cộng ${stageQuestionCounts[2] + stageQuestionCounts[4]} câu trung bình, nhưng kho chỉ có ${availableQuestionCounts[2]}. Hãy giảm số câu ở một hoặc cả hai chặng.`}
+              </p>
+            )}
+          </section>
+        )}
+
         {!controlEnabled && (
           <p className="admin-notice">
             Hãy cấu hình Supabase Realtime để kết nối thiết bị người chơi. Quản
@@ -155,7 +243,7 @@ function AdminPage() {
                 type="button"
                 className="primary-button"
                 onClick={startGame}
-                disabled={!questions.length || !players.length}
+                disabled={!canStartGame}
               >
                 <Play size={16} aria-hidden="true" />
                 Bắt đầu cuộc đua
@@ -245,7 +333,7 @@ function AdminPage() {
         <SpectatorView
           stage={stage}
           currentQuestionIndex={currentQuestionIndex}
-          questionsPerStage={questionsPerStage}
+          stageQuestionCounts={stageQuestionCounts}
           players={players}
           isPaused={status === GameState.PAUSED}
           showTimer={
