@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 // import { Eye } from "lucide-react";
-// import Timer from "../components/Timer";
+import Timer from "../components/Timer";
 import SpectatorView from "../components/game/SpectatorView";
 import LiveRacePanel from "./LiveRacePanel";
 import { useGameStore } from "../store/useGameStore";
@@ -57,7 +57,7 @@ function GamePage() {
         )
       : undefined;
 
-  // const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
+  const timerGetter = useCallback(() => getTimeRemaining(), [getTimeRemaining]);
 
   const handleExpire = useCallback(() => {}, []);
 
@@ -217,18 +217,18 @@ function GamePage() {
             <h1>{STAGE_NAMES[stage] ?? `Chặng ${stage}`}</h1>
           </div>
 
-          {/* <div className="game-header-controls">
+          <div className="game-header-controls">
             <Timer getTimeRemaining={timerGetter} onExpire={handleExpire} />
 
-            <button
+            {/* <button
               type="button"
               className="secondary-button spectator-open"
               onClick={() => setSpectatorMode(true)}
             >
               <Eye size={16} aria-hidden="true" />
               Bảng đua trực tiếp
-            </button>
-          </div> */}
+            </button> */}
+          </div>
         </header>
 
         <div className="player-game-layout">

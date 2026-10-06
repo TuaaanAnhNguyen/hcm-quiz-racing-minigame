@@ -225,7 +225,6 @@ function LiveRaceTrack({
                   className={`live-race-car ${isMe ? "live-race-car-me" : ""}`}
                   style={{
                     top: `${100 - progress}%`,
-                    transform: "translateY(-50%)",
                   }}
                   title={`${racer.name} — vị trí theo tiến độ cuộc đua`}
                 >
