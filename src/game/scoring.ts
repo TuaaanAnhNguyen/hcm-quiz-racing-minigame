@@ -17,10 +17,21 @@ export function calculateScore({
   timeLeft,
   totalTime,
 }: ScoreInput): number {
-  if (stage === 1) return correct ? baseScore : 0;
-  if (stage === 4) return correct ? baseScore : -baseScore;
-
   const boundedTime = Math.max(0, Math.min(timeLeft, totalTime));
-  const dynamicScore = Math.floor(baseScore + (baseScore * boundedTime) / totalTime);
-  return correct || stage === 2 ? dynamicScore : -dynamicScore;
+  const dynamicScore = Math.floor(
+    baseScore + (baseScore * boundedTime) / totalTime,
+  );
+
+  switch (stage) {
+    case 1:
+      return correct ? baseScore : 0;
+    case 2:
+      return correct ? dynamicScore : 0;
+    case 3:
+      return correct ? dynamicScore : -dynamicScore;
+    case 4:
+      return correct ? baseScore : -baseScore;
+    default:
+      return 0;
+  }
 }
