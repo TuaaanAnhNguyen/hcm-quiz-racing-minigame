@@ -60,28 +60,25 @@ function LiveRaceTrack({
     const maxScore = Math.max(0, ...scores);
     const scoreRange = maxScore - minScore;
 
-    // Race progress determines the main position.
-    // The final position is deliberately close to the finish line.
+    // Use most of the track, leaving room for the finish banner.
+    const normalizedProgress = overallProgress / 100;
+    const easedProgress = Math.pow(normalizedProgress, 1.4);
+
     const baseProgress =
-      overallProgress >= 100
-        ? 97
-        : 6 + Math.pow(overallProgress / 100, 1.6) * 89;
+      overallProgress >= 100 ? 97.5 : 6 + easedProgress * 91.5;
 
     return new Map(
       players.map((player) => {
         const scorePosition =
           scoreRange === 0 ? 0.5 : (player.score - minScore) / scoreRange;
 
-        // Keep score-based differences small.
+        // Scores affect relative placement, but not overall race progress.
         const scoreOffset =
           overallProgress >= 100
-            ? (scorePosition - 0.5) * 1.15
+            ? (scorePosition - 0.5) * 1
             : (scorePosition - 0.5) * 1.5;
 
-        const progress =
-          overallProgress >= 100
-            ? 97 + scoreOffset
-            : Math.min(94, Math.max(3, baseProgress + scoreOffset));
+        const progress = Math.min(98, Math.max(3, baseProgress + scoreOffset));
 
         return [player.id, progress];
       }),
@@ -226,7 +223,10 @@ function LiveRaceTrack({
 
                 <div
                   className={`live-race-car ${isMe ? "live-race-car-me" : ""}`}
-                  style={{ top: `${100 - progress}%` }}
+                  style={{
+                    top: `${100 - progress}%`,
+                    transform: "translateY(-50%)",
+                  }}
                   title={`${racer.name} — vị trí theo tiến độ cuộc đua`}
                 >
                   {car ? (
