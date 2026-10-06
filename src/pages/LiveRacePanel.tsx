@@ -21,6 +21,7 @@ function LiveRacePanel({ players, playerId }: LiveRacePanelProps) {
     (state) => state.stageQuestionCounts,
   );
   const pendingStage = useGameStore((state) => state.pendingStage);
+
   const safeStageQuestionCount = Math.max(stageQuestionCounts[stage], 1);
   const stageStartIndex = getStageStartIndex(stage, stageQuestionCounts);
 
@@ -30,11 +31,7 @@ function LiveRacePanel({ players, playerId }: LiveRacePanelProps) {
     status === GameState.SUMMARY ||
     (status === GameState.STAGE_TRANSITION && pendingStage === null)
   ) {
-    // The race is finished.
     raceProgress = 100;
-  } else if (status === GameState.STAGE_TRANSITION) {
-    // Move to the end of the current stage.
-    raceProgress = (stage / 4) * 100;
   } else {
     let completedQuestions = currentQuestionIndex - stageStartIndex;
 
@@ -42,12 +39,18 @@ function LiveRacePanel({ players, playerId }: LiveRacePanelProps) {
       completedQuestions += 1;
     }
 
+    // Keep progress within the current stage.
     const stageProgress = Math.min(
       1,
       Math.max(0, completedQuestions / safeStageQuestionCount),
     );
 
-    raceProgress = ((stage - 1 + stageProgress) / 4) * 100;
+    // Each stage occupies exactly one quarter of the race.
+    // During a transition, stay at the end of the current stage.
+    const stagePosition =
+      status === GameState.STAGE_TRANSITION ? 1 : stageProgress;
+
+    raceProgress = ((stage - 1 + stagePosition) / 4) * 100;
   }
 
   return (

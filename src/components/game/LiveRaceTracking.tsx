@@ -75,8 +75,8 @@ function LiveRaceTrack({
         // Keep score-based differences small.
         const scoreOffset =
           overallProgress >= 100
-            ? (scorePosition - 0.5) * 2
-            : (scorePosition - 0.5) * 3;
+            ? (scorePosition - 0.5) * 1.15
+            : (scorePosition - 0.5) * 1.5;
 
         const progress =
           overallProgress >= 100
